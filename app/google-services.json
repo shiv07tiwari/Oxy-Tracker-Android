@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "38006335546",
+    "project_id": "o2-tracker",
+    "storage_bucket": "o2-tracker.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:38006335546:android:d5b802ec97b141a5c8ed03",
+        "android_client_info": {
+          "package_name": "com.example.oxygencylindertracker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "38006335546-7htathhmuso7vneac5k7dqsqombji1st.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyABrnil-Dm4m8UKrlcD4XhsLHhtn6wcpvM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "38006335546-7htathhmuso7vneac5k7dqsqombji1st.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
