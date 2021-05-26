@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">Oxygen Cylinder Tracker</string>
+    <string name="enter_cylinder_id">Enter Cylinder Id</string>
+    <string name="generate_qr_code">Generate QR Code</string>
+    <string name="qr_code">QR Code</string>
+    <string name="cylinder_type">Cylinder Type:</string>
+    <string name="enter_here">Enter here</string>
+    <string name="cylinder_id">Cylinder ID:</string>
+    <string name="copy_cyl_id">Copy ID</string>
+    <string name="save_qr">Download</string>
 </resources>
