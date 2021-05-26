@@ -1,17 +1,95 @@
 package com.example.oxygencylindertracker.auth
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import com.example.oxygencylindertracker.R
+import com.example.oxygencylindertracker.home.HomeActivity
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
+import com.google.firebase.FirebaseException
+import com.google.firebase.FirebaseTooManyRequestsException
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.PhoneAuthCredential
+import com.google.firebase.auth.PhoneAuthOptions
+import com.google.firebase.auth.PhoneAuthProvider
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+import java.util.concurrent.TimeUnit
 
 class SignInActivity : AppCompatActivity() {
+
+    val auth = Firebase.auth
+
+    private val callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks () {
+        override fun onVerificationCompleted(p0: PhoneAuthCredential) {
+            Log.i("AUTH_MESSAGE", "Verification Completed")
+            signInWithPhoneAuthCredentials(p0)
+        }
+
+        override fun onVerificationFailed(e: FirebaseException) {
+            Log.e("AUTH_MESSAGE", "onVerificationFailed", e)
+
+            when (e) {
+                is FirebaseAuthInvalidCredentialsException -> {
+                    // Invalid request
+                }
+                is FirebaseTooManyRequestsException -> {
+                    // The SMS quota for the project has been exceeded
+                }
+                else -> {
+                    // Any other Error
+                }
+            }
+
+            Snackbar.make(findViewById(android.R.id.content), "Login Failed. Please Try Again", Snackbar.LENGTH_SHORT)
+        }
+    }
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        if (auth.currentUser != null) {
+            startActivity(Intent(this, HomeActivity::class.java))
+        }
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_in)
-
-        val phoneNumberEditTetxt = findViewById<TextInputLayout>(R.id.authPhoneNumberText)
+        val phoneNumberEditText = findViewById<TextInputLayout>(R.id.authPhoneNumberText)
         val getOTPButton = findViewById<Button>(R.id.authGetOTPButton)
+
+        getOTPButton.setOnClickListener {
+            authenticateUser(phoneNumberEditText.editText?.text.toString())
+        }
     }
+
+    private fun authenticateUser (phoneNumber : String) {
+        Log.e("PHONE NUMBER", phoneNumber)
+        val options = PhoneAuthOptions.newBuilder(auth)
+            .setPhoneNumber(phoneNumber)
+            .setTimeout(60L, TimeUnit.SECONDS)
+            .setActivity(this)
+            .setCallbacks(callbacks)
+            .build()
+        PhoneAuthProvider.verifyPhoneNumber(options)
+    }
+
+    fun signInWithPhoneAuthCredentials(phoneAuthCredentials : PhoneAuthCredential) {
+        auth.signInWithCredential(phoneAuthCredentials)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    val user = task.result?.user
+                    Log.d("UPDATE UI", "UPDATE UI SUCCESS $user")
+                } else {
+                    if (task.exception is FirebaseAuthInvalidCredentialsException) {
+                        // wrong data
+                    }
+                }
+
+                // Update UI
+                Log.d("UPDATE UI", "UPDATE UI")
+                Snackbar.make(findViewById(android.R.id.content), "Login Successful", Snackbar.LENGTH_SHORT).show()
+            }
+    }
+
 }

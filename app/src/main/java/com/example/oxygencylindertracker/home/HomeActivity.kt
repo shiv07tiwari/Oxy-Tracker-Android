@@ -1,9 +1,11 @@
-package com.example.oxygencylindertracker
+package com.example.oxygencylindertracker.home
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.example.oxygencylindertracker.R
 
-class MainActivity : AppCompatActivity() {
+class HomeActivity : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
