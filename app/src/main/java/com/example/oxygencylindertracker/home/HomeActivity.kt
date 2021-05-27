@@ -56,6 +56,7 @@ class HomeActivity : AppCompatActivity() {
         mRecyclerView.visibility = View.VISIBLE
         mProgressBar.visibility = View.GONE
         totalCylindersText.visibility = View.VISIBLE
+        firebaseDBHelper.checkIfExitTransaction("A-27052021-102659")
     }
 
     fun displayEmptyList () {

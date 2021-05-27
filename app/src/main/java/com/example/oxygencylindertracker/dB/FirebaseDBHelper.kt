@@ -78,7 +78,7 @@ class FirebaseDBHelper  {
             }
     }
 
-    private fun checkIfExitTransaction(cylinderId : String) {
+    fun checkIfExitTransaction (cylinderId : String) {
         val userPhoneNumber = Firebase.auth.currentUser?.phoneNumber?.removePrefix("+91") ?: ""
         db.collection(cylindersDB).document(cylinderId).get()
             .addOnSuccessListener { snapshot ->
@@ -92,7 +92,7 @@ class FirebaseDBHelper  {
                         if (ownerPhoneNumber == userPhoneNumber) {
                             Log.e("Cylinder Status", "Exit Transaction")
                         } else {
-                            Log.e("Cylinder Status", "EntryLog.e(\"Cylinder Status\", \"Exit Transaction\") Transaction")
+                            Log.e("Cylinder Status", "Entry Transaction")
                         }
                     }
                 }
