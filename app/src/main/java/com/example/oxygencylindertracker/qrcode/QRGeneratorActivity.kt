@@ -5,23 +5,21 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.ContextWrapper
 import android.graphics.Bitmap
-import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.text.TextUtils
+import android.util.Log
 import android.view.View.VISIBLE
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import com.example.oxygencylindertracker.R
-
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.MultiFormatWriter;
-import com.google.zxing.WriterException;
-import com.google.zxing.common.BitMatrix;
-import com.journeyapps.barcodescanner.BarcodeEncoder;
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.MultiFormatWriter
+import com.google.zxing.WriterException
+import com.journeyapps.barcodescanner.BarcodeEncoder
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -52,8 +50,10 @@ class QRGeneratorActivity : AppCompatActivity() {
         generateQrButton.setOnClickListener{
 
             val sdf = SimpleDateFormat("ddMMyyyy-hhmmss")
-            val currentDate = sdf.format(Date()).toString()
-            qrId = cylTypeEditText.text.toString() + "-" + currentDate
+            val currDate = Date()
+            val currentDate = sdf.format(currDate).toString()
+            val cylType = cylTypeEditText.text.toString()
+            qrId = cylType + "-" + currentDate
             if (TextUtils.isEmpty(qrId)) {
                 Toast.makeText(applicationContext,
                     "Enter Cylinder Id to generate QR Code",
@@ -65,9 +65,9 @@ class QRGeneratorActivity : AppCompatActivity() {
                     val barcodeEncoder = BarcodeEncoder()
                     bitmap = barcodeEncoder.createBitmap(bitMatrix)
                     qrCodeImageView.setImageBitmap(bitmap)
+                    addCylinderToDatabase(currDate, qrId)
                     qrIdTextView.text = qrId
                     qrIdLayout.visibility = VISIBLE
-                    copyCylIdButton.visibility = VISIBLE
                     saveQRLayout.visibility = VISIBLE
                 } catch (e: WriterException) {
                     e.printStackTrace()
@@ -104,6 +104,15 @@ class QRGeneratorActivity : AppCompatActivity() {
         } catch (e: IOException){ // Catch the exception
             e.printStackTrace()
         }
+    }
 
+    private fun addCylinderToDatabase(timestamp: Date, cylId: String){
+        val firebaseDb = FirebaseFirestore.getInstance().collection("cylinders")
+        val cylinder = HashMap<String, Any>()
+        cylinder["timestamp"] = timestamp
+        firebaseDb.document(cylId)
+            .set(cylinder)
+            .addOnSuccessListener { Log.d("Tag", "Cylinder added successfully!") }
+            .addOnFailureListener { e -> Log.w("Tag", "Error adding cylinder", e) }
     }
 }
