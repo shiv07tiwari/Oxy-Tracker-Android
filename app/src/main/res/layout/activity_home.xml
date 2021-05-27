@@ -27,12 +27,12 @@
     </TextView>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:layout_width="match_parent"
-        android:layout_marginTop="20dp"
         android:id="@+id/homeCylinderRV"
-        app:layout_constraintTop_toBottomOf="@id/homeCylinderText"
-        android:layout_marginBottom="80dp"
-        android:layout_height="wrap_content">
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="20dp"
+        app:layout_constraintBottom_toTopOf="@+id/homeScanQRBtn"
+        app:layout_constraintTop_toBottomOf="@id/homeCylinderText">
 
     </androidx.recyclerview.widget.RecyclerView>
 

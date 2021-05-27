@@ -26,6 +26,7 @@ class HomeActivity : AppCompatActivity() {
     var auth = Firebase.auth
     lateinit var mProgressBar : ProgressBar
     lateinit var firebaseDBHelper : FirebaseDBHelper
+    lateinit var cylinderList: List<Cylinder>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,6 +51,7 @@ class HomeActivity : AppCompatActivity() {
     }
 
     fun displayCylinderList (cylinders: List<Cylinder>) {
+        cylinderList = cylinders
         totalCylindersText.text = "You have a custody of ${cylinders.size} Cylinders"
         mAdapter = CylinderAdapter(cylinders)
         mRecyclerView.adapter = mAdapter

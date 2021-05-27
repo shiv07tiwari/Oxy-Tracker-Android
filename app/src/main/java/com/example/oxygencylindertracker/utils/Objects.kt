@@ -15,3 +15,11 @@ data class Cylinder(
     val type : String,
     val isCitizen : Boolean
 )
+
+data class Citizen(
+    val address: String,
+    val currentOwner: String,
+    val timestamp : String,
+    val type : String,
+    val isCitizen : Boolean
+)
