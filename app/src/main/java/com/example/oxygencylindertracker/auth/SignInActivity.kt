@@ -5,7 +5,9 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
+import android.widget.Toast
 import com.example.oxygencylindertracker.R
+import com.example.oxygencylindertracker.dB.FirebaseDBHelper
 import com.example.oxygencylindertracker.home.HomeActivity
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
@@ -21,7 +23,8 @@ import java.util.concurrent.TimeUnit
 
 class SignInActivity : AppCompatActivity() {
 
-    val auth = Firebase.auth
+    private val auth = Firebase.auth
+    lateinit var firebaseDBHelper : FirebaseDBHelper
 
     private val callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks () {
         override fun onVerificationCompleted(p0: PhoneAuthCredential) {
@@ -31,30 +34,23 @@ class SignInActivity : AppCompatActivity() {
 
         override fun onVerificationFailed(e: FirebaseException) {
             Log.e("AUTH_MESSAGE", "onVerificationFailed", e)
-
             when (e) {
-                is FirebaseAuthInvalidCredentialsException -> {
-                    // Invalid request
-                }
-                is FirebaseTooManyRequestsException -> {
-                    // The SMS quota for the project has been exceeded
-                }
-                else -> {
-                    // Any other Error
-                }
+                is FirebaseAuthInvalidCredentialsException -> { }
+                is FirebaseTooManyRequestsException -> { }
+                else -> { }
             }
-
             Snackbar.make(findViewById(android.R.id.content), "Login Failed. Please Try Again", Snackbar.LENGTH_SHORT)
         }
     }
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.e("AUTH CHECK", auth.currentUser.toString())
         if (auth.currentUser != null) {
             startActivity(Intent(this, HomeActivity::class.java))
         }
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_in)
+        firebaseDBHelper = FirebaseDBHelper()
         val phoneNumberEditText = findViewById<TextInputLayout>(R.id.authPhoneNumberText)
         val getOTPButton = findViewById<Button>(R.id.authGetOTPButton)
 
@@ -74,22 +70,27 @@ class SignInActivity : AppCompatActivity() {
         PhoneAuthProvider.verifyPhoneNumber(options)
     }
 
+    fun showMessage(message : String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+    fun navigateToHomeScreen() {
+        val intent = Intent(this, HomeActivity::class.java)
+        startActivity(intent)
+    }
+
     fun signInWithPhoneAuthCredentials(phoneAuthCredentials : PhoneAuthCredential) {
         auth.signInWithCredential(phoneAuthCredentials)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     val user = task.result?.user
-                    Log.d("UPDATE UI", "UPDATE UI SUCCESS $user")
+                    Log.e("UPDATE UI", "Firebase Auth Successful $user")
+                    firebaseDBHelper.validateUserLogin(user?.phoneNumber, this)
                 } else {
                     if (task.exception is FirebaseAuthInvalidCredentialsException) {
-                        // wrong data
+                        Snackbar.make(findViewById(android.R.id.content), "Login Failed. Please try again", Snackbar.LENGTH_SHORT).show()
                     }
                 }
-
-                // Update UI
-                Log.d("UPDATE UI", "UPDATE UI")
-                Snackbar.make(findViewById(android.R.id.content), "Login Successful", Snackbar.LENGTH_SHORT).show()
             }
     }
-
 }

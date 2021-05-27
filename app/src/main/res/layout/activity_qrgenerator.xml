@@ -75,7 +75,7 @@
         android:layout_height="wrap_content"
         android:text="@string/generate_qr_code"
         android:textSize="18sp"
-        android:background="@color/theme_oxy_tracker"
+        android:background="@color/lightpink"
         android:layout_below="@+id/type_layout"
         android:layout_margin="5dp"
         android:layout_marginTop="20dp"
@@ -95,7 +95,7 @@
             android:text="@string/save_qr"
             android:textSize="18sp"
             android:layout_margin="5dp"
-            android:background="@color/theme_oxy_tracker"
+            android:background="@color/lightpink"
             android:id="@+id/save_qr_button"/>
         <Button
             android:id="@+id/copy_cyl_id"

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Oxygen Cylinder Tracker</string>
+    <string name="app_name">OxyTracker</string>
     <string name="enter_cylinder_id">Enter Cylinder Id</string>
     <string name="generate_qr_code">Generate QR Code</string>
     <string name="qr_code">QR Code</string>
