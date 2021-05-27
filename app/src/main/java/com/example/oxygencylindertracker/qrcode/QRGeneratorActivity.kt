@@ -57,10 +57,10 @@ class QRGeneratorActivity : AppCompatActivity() {
             val currentDate = sdf.format(currDate).toString()
             val cylType = cylTypeEditText.text.toString()
             qrId = cylType + "-" + currentDate
-            if (TextUtils.isEmpty(qrId)) {
+            if (TextUtils.isEmpty(cylType)) {
                 Toast.makeText(applicationContext,
                     "Enter Cylinder Id to generate QR Code",
-                    Toast.LENGTH_SHORT).show();
+                    Toast.LENGTH_SHORT).show()
             }else {
                 val multiFormatWriter = MultiFormatWriter()
                 try {
