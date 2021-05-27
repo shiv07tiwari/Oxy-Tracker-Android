@@ -71,13 +71,13 @@
             android:hint="@string/enter_here"/>
     </LinearLayout>
     <Button
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/generate_qr_code"
         android:textSize="18sp"
         android:background="@color/theme_oxy_tracker"
         android:layout_below="@+id/type_layout"
-        android:layout_centerHorizontal="true"
+        android:layout_margin="5dp"
         android:layout_marginTop="20dp"
         android:id="@+id/generate_qr_button"/>
 
@@ -87,24 +87,29 @@
         android:layout_marginTop="20dp"
         android:layout_below="@+id/generate_qr_button"
         android:visibility="gone"
-        android:id="@+id/save_qr_layout">
+        android:id="@+id/save_qr_layout"
+        android:orientation="vertical">
         <Button
-            android:layout_width="0dp"
-            android:layout_weight="2"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/save_qr"
             android:textSize="18sp"
+            android:layout_margin="5dp"
             android:background="@color/theme_oxy_tracker"
             android:id="@+id/save_qr_button"/>
         <Button
             android:id="@+id/copy_cyl_id"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="5dp"
-            android:layout_marginLeft="5dp"
+            android:layout_margin="5dp"
             android:text="@string/copy_cyl_id"
             android:textSize="18sp"/>
+        <Button
+            android:id="@+id/share_qr_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:text="@string/share_qr"
+            android:textSize="18sp"/>
     </LinearLayout>
-
 </RelativeLayout>

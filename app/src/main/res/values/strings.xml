@@ -8,4 +8,5 @@
     <string name="cylinder_id">Cylinder ID:</string>
     <string name="copy_cyl_id">Copy ID</string>
     <string name="save_qr">Download</string>
+    <string name="share_qr">Share QR</string>
 </resources>

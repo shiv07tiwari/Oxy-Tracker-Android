@@ -1,13 +1,11 @@
 package com.example.oxygencylindertracker.qrcode
 
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
-import android.content.ContextWrapper
+import android.content.*
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.text.TextUtils
 import android.util.Log
 import android.view.View.VISIBLE
@@ -15,7 +13,10 @@ import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import com.example.oxygencylindertracker.R
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.ktx.Firebase
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.MultiFormatWriter
 import com.google.zxing.WriterException
@@ -26,6 +27,7 @@ import java.io.IOException
 import java.io.OutputStream
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.HashMap
 
 
 class QRGeneratorActivity : AppCompatActivity() {
@@ -43,6 +45,7 @@ class QRGeneratorActivity : AppCompatActivity() {
         val generateQrButton = findViewById<Button>(R.id.generate_qr_button)
         val copyCylIdButton = findViewById<Button>(R.id.copy_cyl_id)
         val downloadQRButton = findViewById<Button>(R.id.save_qr_button)
+        val shareQRButton = findViewById<Button>(R.id.share_qr_btn)
 
         var bitmap: Bitmap? = null
         var qrId = ""
@@ -87,6 +90,9 @@ class QRGeneratorActivity : AppCompatActivity() {
             bitmap?.let { saveImageToInternalStorage(it, qrId) }
         }
 
+        shareQRButton.setOnClickListener {
+            bitmap?.let { shareQRCode(it)}
+        }
     }
 
     private fun saveImageToInternalStorage(bitmap: Bitmap, cylinderId: String) {
@@ -107,12 +113,45 @@ class QRGeneratorActivity : AppCompatActivity() {
     }
 
     private fun addCylinderToDatabase(timestamp: Date, cylId: String){
-        val firebaseDb = FirebaseFirestore.getInstance().collection("cylinders")
+        val firebaseDb = FirebaseFirestore.getInstance()
         val cylinder = HashMap<String, Any>()
         cylinder["timestamp"] = timestamp
-        firebaseDb.document(cylId)
+        val currOwner = Firebase.auth.currentUser?.phoneNumber?:return
+        cylinder["current_owner"] = currOwner
+        cylinder["createdBy"] = currOwner
+        cylinder["isCitizen"] = false
+        val cylCollection = firebaseDb.collection("cylinders")
+        cylCollection.document(cylId)
             .set(cylinder)
             .addOnSuccessListener { Log.d("Tag", "Cylinder added successfully!") }
             .addOnFailureListener { e -> Log.w("Tag", "Error adding cylinder", e) }
+
+        val userCollection = firebaseDb.collection("users")
+        userCollection.document(currOwner).update("cylinders", FieldValue.arrayUnion(cylId))
+    }
+
+    private fun shareQRCode(bitmap: Bitmap){
+        val icon: Bitmap = bitmap
+        val share = Intent(Intent.ACTION_SEND)
+        share.type = "image/jpeg"
+        val values = ContentValues()
+        values.put(MediaStore.Images.Media.TITLE, "title")
+        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+        val uri = contentResolver.insert(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            values
+        )
+
+        val outstream: OutputStream?
+        try {
+            outstream = contentResolver.openOutputStream(uri!!)
+            icon.compress(Bitmap.CompressFormat.JPEG, 100, outstream)
+            outstream!!.close()
+        } catch (e: Exception) {
+            Log.e("Error", e.toString())
+        }
+
+        share.putExtra(Intent.EXTRA_STREAM, uri)
+        startActivity(Intent.createChooser(share, "Share Image"))
     }
 }
