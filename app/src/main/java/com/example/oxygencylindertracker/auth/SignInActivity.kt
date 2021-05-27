@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
+import android.widget.Toast
 import com.example.oxygencylindertracker.R
 import com.example.oxygencylindertracker.dB.FirebaseDBHelper
 import com.example.oxygencylindertracker.home.HomeActivity
@@ -69,8 +70,8 @@ class SignInActivity : AppCompatActivity() {
         PhoneAuthProvider.verifyPhoneNumber(options)
     }
 
-    fun showSnackBar(message : String) {
-        Snackbar.make(findViewById(android.R.id.content), message, Snackbar.LENGTH_SHORT).show()
+    fun showMessage(message : String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
     fun navigateToHomeScreen() {

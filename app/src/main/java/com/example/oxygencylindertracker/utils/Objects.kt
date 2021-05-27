@@ -7,3 +7,11 @@ data class UserValidationResponse (
     val isEmpty : Boolean,
     val isError : Boolean
 )
+
+data class Cylinder(
+    val id: String,
+    val currentOwner: String,
+    val timestamp : String,
+    val type : String,
+    val isCitizen : Boolean
+)

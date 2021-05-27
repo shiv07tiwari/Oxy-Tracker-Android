@@ -1,0 +1,5 @@
+Create Cylinder QR
+
+- Add cylinder to the dB (ownerId = createdBy = abhi, isCitizen=false, id, timestamp)
+- Add cylinderId to the owner's cylinder array (users table)
+- History wala (baad me)
