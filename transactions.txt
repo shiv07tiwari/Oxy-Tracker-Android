@@ -3,3 +3,7 @@ Create Cylinder QR
 - Add cylinder to the dB (ownerId = createdBy = abhi, isCitizen=false, id, timestamp)
 - Add cylinderId to the owner's cylinder array (users table)
 - History wala (baad me)
+
+
+- Identify if the user is doing an exit transaction or entry transaction
+        - id aayegi, check karo vohi hold karta hai na nahi

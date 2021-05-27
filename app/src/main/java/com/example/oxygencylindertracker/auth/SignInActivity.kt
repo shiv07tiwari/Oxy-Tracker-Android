@@ -62,7 +62,7 @@ class SignInActivity : AppCompatActivity() {
     private fun authenticateUser (phoneNumber : String) {
         Log.e("PHONE NUMBER", phoneNumber)
         val options = PhoneAuthOptions.newBuilder(auth)
-            .setPhoneNumber(phoneNumber)
+            .setPhoneNumber("+91$phoneNumber")
             .setTimeout(60L, TimeUnit.SECONDS)
             .setActivity(this)
             .setCallbacks(callbacks)
@@ -85,7 +85,7 @@ class SignInActivity : AppCompatActivity() {
                 if (task.isSuccessful) {
                     val user = task.result?.user
                     Log.e("UPDATE UI", "Firebase Auth Successful $user")
-                    firebaseDBHelper.validateUserLogin(user?.phoneNumber, this)
+                    firebaseDBHelper.validateUserLogin(this)
                 } else {
                     if (task.exception is FirebaseAuthInvalidCredentialsException) {
                         Snackbar.make(findViewById(android.R.id.content), "Login Failed. Please try again", Snackbar.LENGTH_SHORT).show()

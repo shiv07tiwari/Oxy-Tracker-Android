@@ -46,11 +46,11 @@ class HomeActivity : AppCompatActivity() {
         mRecyclerView.visibility = View.GONE
         mProgressBar.visibility = View.VISIBLE
         totalCylindersText.visibility = View.GONE
-        firebaseDBHelper.getCylindersDataForUser(auth.currentUser?.phoneNumber, this)
+        firebaseDBHelper.getCylindersDataForUser(this)
     }
 
     fun displayCylinderList (cylinders: List<Cylinder>) {
-        totalCylindersText.text = "You have a custody of ${cylinders.size} Cylinders"
+        totalCylindersText.text = "You have a custody of ${cylinders.size} Cylinder(s)"
         mAdapter = CylinderAdapter(cylinders)
         mRecyclerView.adapter = mAdapter
         mRecyclerView.visibility = View.VISIBLE

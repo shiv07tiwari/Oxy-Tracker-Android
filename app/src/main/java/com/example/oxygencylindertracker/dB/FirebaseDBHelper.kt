@@ -23,9 +23,11 @@ class FirebaseDBHelper  {
     private val usersDB = "users"
     private val cylindersDB = "cylinders"
 
-    fun validateUserLogin(phoneNumber : String?, activity: SignInActivity) {
-        Log.e("Validating Phone Number", " :  $phoneNumber")
-        db.collection(usersDB).document(phoneNumber?: "").get()
+    fun validateUserLogin (activity: SignInActivity) {
+        val userPhoneNumber = Firebase.auth.currentUser?.phoneNumber?.removePrefix("+91") ?: ""
+
+        Log.e("Validating Phone Number", " :  $userPhoneNumber")
+        db.collection(usersDB).document(userPhoneNumber).get()
             .addOnSuccessListener { snapshot ->
                 Log.e("User Validation DOCS", snapshot.exists().toString())
                 when (snapshot.exists()) {
@@ -46,8 +48,9 @@ class FirebaseDBHelper  {
             }
     }
 
-    fun getCylindersDataForUser(phoneNumber: String?, activity: HomeActivity) {
-        db.collection(cylindersDB).whereEqualTo(currentOwnerKey, phoneNumber?: "").get()
+    fun getCylindersDataForUser(activity: HomeActivity) {
+        val userPhoneNumber = Firebase.auth.currentUser?.phoneNumber?.removePrefix("+91") ?: ""
+        db.collection(cylindersDB).whereEqualTo(currentOwnerKey, userPhoneNumber).get()
             .addOnSuccessListener { documents ->
                 val cylinders = mutableListOf<Cylinder>()
                 documents.documents.map { snapshot ->
@@ -75,11 +78,36 @@ class FirebaseDBHelper  {
             }
     }
 
-    private fun Timestamp.convertTimeStampToString() : String {
-        return this.toString()
+    private fun checkIfExitTransaction(cylinderId : String) {
+        val userPhoneNumber = Firebase.auth.currentUser?.phoneNumber?.removePrefix("+91") ?: ""
+        db.collection(cylindersDB).document(cylinderId).get()
+            .addOnSuccessListener { snapshot ->
+                Log.e("User Validation DOCS", snapshot.exists().toString())
+                when (snapshot.exists()) {
+                    false -> {
+                        Log.e("Cylinder Status", "Invalid Cylinder. Please Try Again")
+                    }
+                    true -> {
+                        val ownerPhoneNumber = snapshot.data?.get("current_owner") ?: ""
+                        if (ownerPhoneNumber == userPhoneNumber) {
+                            Log.e("Cylinder Status", "Exit Transaction")
+                        } else {
+                            Log.e("Cylinder Status", "EntryLog.e(\"Cylinder Status\", \"Exit Transaction\") Transaction")
+                        }
+                    }
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.e("TAG", "Error getting documents: ", exception)
+                Firebase.auth.signOut()
+            }
     }
 
+    private fun String.convertToDBPhoneNumber() : String {
+        return this.removePrefix("+91")
+    }
 
+    // Helper functions
     private fun Timestamp.getDateTime(): String {
         val sdf = SimpleDateFormat("MM/dd/yyyy")
         val netDate = Date(this.seconds * 1000)
