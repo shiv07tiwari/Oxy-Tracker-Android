@@ -15,7 +15,6 @@ android {
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
-
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -49,5 +48,12 @@ dependencies {
     // Firebase
     implementation platform('com.google.firebase:firebase-bom:28.0.1')
     implementation 'com.google.firebase:firebase-auth-ktx' // Phone Auth
-    implementation 'com.google.firebase:firebase-firestore-ktx' // dB Storage
+
+    // QR Code
+    implementation 'com.google.zxing:core:3.2.1'
+    implementation 'com.journeyapps:zxing-android-embedded:3.2.0@aar'
+    implementation 'androidx.multidex:multidex:2.0.1'
+
+    // dB Storage
+    implementation 'com.google.firebase:firebase-firestore-ktx'
 }
