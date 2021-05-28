@@ -9,4 +9,5 @@
     <string name="copy_cyl_id">Copy ID</string>
     <string name="save_qr">Download</string>
     <string name="share_qr">Share QR</string>
+    <string name="generate_qr">Generate QR</string>
 </resources>

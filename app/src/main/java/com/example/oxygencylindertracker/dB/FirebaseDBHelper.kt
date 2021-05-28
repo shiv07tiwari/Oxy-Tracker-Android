@@ -3,6 +3,7 @@ package com.example.oxygencylindertracker.dB
 import android.util.Log
 import com.example.oxygencylindertracker.auth.SignInActivity
 import com.example.oxygencylindertracker.home.HomeActivity
+import com.example.oxygencylindertracker.qrcode.QRGeneratorActivity
 import com.example.oxygencylindertracker.transactions.EntryTransactionActivity
 import com.example.oxygencylindertracker.utils.Cylinder
 import com.google.firebase.Timestamp
@@ -172,6 +173,28 @@ class FirebaseDBHelper  {
         val sdf = SimpleDateFormat("MM/dd/yyyy")
         val netDate = Date(this.seconds * 1000)
         return sdf.format(netDate)
+    }
+
+    fun addCylinderToDatabase(qrGeneratorActivity: QRGeneratorActivity, timestamp: Date, cylId: String) {
+        val cylinder = HashMap<String, Any>()
+        cylinder["timestamp"] = timestamp
+        val currOwner = Firebase.auth.currentUser?.phoneNumber?.removePrefix("+91") ?: return
+        cylinder["current_owner"] = currOwner
+        cylinder["createdBy"] = currOwner
+        cylinder["isCitizen"] = false
+        val cylCollection = db.collection("cylinders")
+        cylCollection.document(cylId)
+            .set(cylinder)
+            .addOnSuccessListener {
+                qrGeneratorActivity.onQRGenerationSuccess(cylId)
+                Log.d("Tag", "Cylinder added successfully!")
+            }
+            .addOnFailureListener {
+                qrGeneratorActivity.showMessage("Error Generating QR. Try again!")
+            }
+
+        val userCollection = db.collection("users")
+        userCollection.document(currOwner).update("cylinders", FieldValue.arrayUnion(cylId))
     }
 
     private fun getCurrentTimeStamp(): Timestamp {

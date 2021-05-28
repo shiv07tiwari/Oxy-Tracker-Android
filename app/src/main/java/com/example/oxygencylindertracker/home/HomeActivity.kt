@@ -1,6 +1,9 @@
 package com.example.oxygencylindertracker.home
 
+import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
@@ -10,8 +13,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.oxygencylindertracker.R
 import com.example.oxygencylindertracker.dB.FirebaseDBHelper
-import com.example.oxygencylindertracker.dB.LocalStorageHelper
+import com.example.oxygencylindertracker.qrcode.QRGeneratorActivity
+import com.example.oxygencylindertracker.qrcode.QRScannerActivity
 import com.example.oxygencylindertracker.utils.Cylinder
+import com.example.oxygencylindertracker.dB.LocalStorageHelper
 
 
 class HomeActivity : AppCompatActivity() {
@@ -47,12 +52,12 @@ class HomeActivity : AppCompatActivity() {
         userTextView.text = "Welcome ${localStorageHelper.getUserName(this)}"
         mLayoutManager = LinearLayoutManager(this)
         mRecyclerView.layoutManager = mLayoutManager
-
-        scanQRButton.setOnClickListener {
-            // Open Scan QR Activity
-        }
-
         fetchCylindersData()
+
+        scanQRButton = findViewById(R.id.homeScanQRBtn)
+        scanQRButton.setOnClickListener {
+            startActivity(Intent(this, QRScannerActivity::class.java))
+        }
     }
 
     private fun fetchCylindersData() {
@@ -118,5 +123,21 @@ class HomeActivity : AppCompatActivity() {
 
     fun showMessage(message : String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.button_item -> {
+                val intent = Intent(this, QRGeneratorActivity::class.java)
+                startActivity(intent)
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+        return true
     }
 }
