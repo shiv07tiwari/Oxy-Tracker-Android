@@ -15,16 +15,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.OxygenCylinderTracker">
         <activity android:name=".transactions.EntryTransactionActivity">
+        </activity>
+        <activity android:name=".qrcode.QRGeneratorActivity"></activity>
+        <activity android:name=".transactions.FormActivity"></activity>
+        <activity android:name=".auth.SignInActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-        <activity android:name=".qrcode.QRGeneratorActivity"></activity>
-        <activity android:name=".transactions.FormActivity"></activity>
-        <activity android:name=".auth.SignInActivity">
-
         </activity>
         <activity android:name=".home.HomeActivity" />
     </application>
