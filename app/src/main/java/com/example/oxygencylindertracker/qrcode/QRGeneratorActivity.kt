@@ -13,6 +13,7 @@ import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import com.example.oxygencylindertracker.R
+import com.example.oxygencylindertracker.dB.FirebaseDBHelper
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -32,15 +33,21 @@ import kotlin.collections.HashMap
 
 class QRGeneratorActivity : AppCompatActivity() {
 
+    lateinit var firebaseDBHelper: FirebaseDBHelper
+    lateinit var saveQRLayout: LinearLayout
+    lateinit var qrIdLayout: LinearLayout
+    lateinit var qrIdTextView: TextView
+
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_qrgenerator)
+        firebaseDBHelper = FirebaseDBHelper()
 
         val qrCodeImageView = findViewById<ImageView>(R.id.qr_code)
-        val qrIdTextView = findViewById<TextView>(R.id.qr_id)
-        val qrIdLayout = findViewById<LinearLayout>(R.id.qr_id_layout)
-        val saveQRLayout = findViewById<LinearLayout>(R.id.save_qr_layout)
+        qrIdTextView = findViewById<TextView>(R.id.qr_id)
+        qrIdLayout = findViewById(R.id.qr_id_layout)
+        saveQRLayout = findViewById(R.id.save_qr_layout)
         val cylTypeEditText = findViewById<EditText>(R.id.cyl_type)
         val generateQrButton = findViewById<Button>(R.id.generate_qr_button)
         val copyCylIdButton = findViewById<Button>(R.id.copy_cyl_id)
@@ -68,10 +75,7 @@ class QRGeneratorActivity : AppCompatActivity() {
                     val barcodeEncoder = BarcodeEncoder()
                     bitmap = barcodeEncoder.createBitmap(bitMatrix)
                     qrCodeImageView.setImageBitmap(bitmap)
-                    addCylinderToDatabase(currDate, qrId)
-                    qrIdTextView.text = qrId
-                    qrIdLayout.visibility = VISIBLE
-                    saveQRLayout.visibility = VISIBLE
+                    firebaseDBHelper.addCylinderToDatabase(this, currDate, qrId)
                 } catch (e: WriterException) {
                     e.printStackTrace()
                 }
@@ -95,6 +99,16 @@ class QRGeneratorActivity : AppCompatActivity() {
         }
     }
 
+    fun onQRGenerationSuccess(qrId: String){
+        qrIdTextView.text = qrId
+        qrIdLayout.visibility = VISIBLE
+        saveQRLayout.visibility = VISIBLE
+    }
+
+    fun showMessage(message : String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
     private fun saveImageToInternalStorage(bitmap: Bitmap, cylinderId: String) {
         // TODO: Save it in gallery instead of root level dir
         val wrapper = ContextWrapper(applicationContext)
@@ -110,24 +124,6 @@ class QRGeneratorActivity : AppCompatActivity() {
         } catch (e: IOException){ // Catch the exception
             e.printStackTrace()
         }
-    }
-
-    private fun addCylinderToDatabase(timestamp: Date, cylId: String){
-        val firebaseDb = FirebaseFirestore.getInstance()
-        val cylinder = HashMap<String, Any>()
-        cylinder["timestamp"] = timestamp
-        val currOwner = Firebase.auth.currentUser?.phoneNumber?:return
-        cylinder["current_owner"] = currOwner
-        cylinder["createdBy"] = currOwner
-        cylinder["isCitizen"] = false
-        val cylCollection = firebaseDb.collection("cylinders")
-        cylCollection.document(cylId)
-            .set(cylinder)
-            .addOnSuccessListener { Log.d("Tag", "Cylinder added successfully!") }
-            .addOnFailureListener { e -> Log.w("Tag", "Error adding cylinder", e) }
-
-        val userCollection = firebaseDb.collection("users")
-        userCollection.document(currOwner).update("cylinders", FieldValue.arrayUnion(cylId))
     }
 
     private fun shareQRCode(bitmap: Bitmap){
