@@ -4,10 +4,13 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Button
+import android.widget.ProgressBar
 import android.widget.Toast
 import com.example.oxygencylindertracker.R
 import com.example.oxygencylindertracker.dB.FirebaseDBHelper
+import com.example.oxygencylindertracker.dB.LocalStorageHelper
 import com.example.oxygencylindertracker.home.HomeActivity
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
@@ -25,6 +28,9 @@ class SignInActivity : AppCompatActivity() {
 
     private val auth = Firebase.auth
     lateinit var firebaseDBHelper : FirebaseDBHelper
+    lateinit var localStorageHelper: LocalStorageHelper
+    lateinit var mProgressBar : ProgressBar
+    lateinit var getOTPButton : Button
 
     private val callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks () {
         override fun onVerificationCompleted(p0: PhoneAuthCredential) {
@@ -51,8 +57,12 @@ class SignInActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_in)
         firebaseDBHelper = FirebaseDBHelper()
+        localStorageHelper = LocalStorageHelper()
+        mProgressBar = findViewById(R.id.signInProgressBar)
+        mProgressBar.visibility = View.GONE
+
         val phoneNumberEditText = findViewById<TextInputLayout>(R.id.authPhoneNumberText)
-        val getOTPButton = findViewById<Button>(R.id.authGetOTPButton)
+        getOTPButton = findViewById(R.id.authGetOTPButton)
 
         getOTPButton.setOnClickListener {
             authenticateUser(phoneNumberEditText.editText?.text.toString())
@@ -60,6 +70,8 @@ class SignInActivity : AppCompatActivity() {
     }
 
     private fun authenticateUser (phoneNumber : String) {
+        mProgressBar.visibility = View.VISIBLE
+        getOTPButton.visibility = View.GONE
         Log.e("PHONE NUMBER", phoneNumber)
         val options = PhoneAuthOptions.newBuilder(auth)
             .setPhoneNumber("+91$phoneNumber")
@@ -71,11 +83,15 @@ class SignInActivity : AppCompatActivity() {
     }
 
     fun showMessage(message : String) {
+        mProgressBar.visibility = View.GONE
+        getOTPButton.visibility = View.VISIBLE
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
-    fun navigateToHomeScreen() {
+    fun navigateToHomeScreen(phoneNumber: String, userName : String) {
         val intent = Intent(this, HomeActivity::class.java)
+        localStorageHelper.savePhoneNumber(phoneNumber, this)
+        localStorageHelper.saveUserName(userName, this)
         startActivity(intent)
     }
 

@@ -1,11 +1,11 @@
 package com.example.oxygencylindertracker.home
 
-import com.example.oxygencylindertracker.R
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.oxygencylindertracker.R
 import com.example.oxygencylindertracker.utils.Cylinder
 
 
@@ -30,6 +30,11 @@ class CylinderAdapter (cylinders : List<Cylinder>) : RecyclerView.Adapter<Cylind
     override fun onBindViewHolder(holder: CylinderItemViewHolder, position: Int) {
         holder.cylinderIdText.text = cylinders[position].id
         holder.cylinderDateText.text = cylinders[position].timestamp
+    }
+
+    fun filterList (cylinders: List<Cylinder>) {
+        this.cylinders = cylinders
+        notifyDataSetChanged()
     }
 
 }

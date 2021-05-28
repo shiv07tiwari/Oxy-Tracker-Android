@@ -7,3 +7,10 @@ Create Cylinder QR
 
 - Identify if the user is doing an exit transaction or entry transaction
         - id aayegi, check karo vohi hold karta hai na nahi
+
+
+- Entry Transaction
+    - cylinderId se ownerId nikalna hai. Scanner id hai apne paas {DONE}
+    - owner ke cylinders se remove this id
+    - scanner ke cylinders me add this Id
+    -  update cylinders ka current_owner and updatedAt
