@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.util.Log
 import com.example.oxygencylindertracker.auth.SignInActivity
 import com.example.oxygencylindertracker.home.HomeActivity
+import com.example.oxygencylindertracker.qrcode.QRGeneratorActivity
 import com.example.oxygencylindertracker.transactions.EntryTransactionActivity
 import com.example.oxygencylindertracker.transactions.FormActivity
 import com.example.oxygencylindertracker.utils.Cylinder
@@ -39,6 +40,7 @@ class FirebaseDBHelper  {
         Log.e("Validating Phone Number", " :  $userPhoneNumber")
         db.collection(usersDB).document(userPhoneNumber).get()
             .addOnSuccessListener { snapshot ->
+                val data = snapshot.data
                 Log.e("User Validation DOCS", snapshot.exists().toString())
                 when (snapshot.exists()) {
                     false -> {
@@ -46,8 +48,9 @@ class FirebaseDBHelper  {
                         activity.showMessage("You are not authorized. Please contact the Admin")
                     }
                     true -> {
+                        val userName = data?.get("name") as String
                         Log.e("Auth Success", "User Validated on Firebase")
-                        activity.navigateToHomeScreen()
+                        activity.navigateToHomeScreen(snapshot.id, userName)
                     }
                 }
             }
@@ -193,6 +196,28 @@ class FirebaseDBHelper  {
         val sdf = SimpleDateFormat("MM/dd/yyyy")
         val netDate = Date(this.seconds * 1000)
         return sdf.format(netDate)
+    }
+
+    fun addCylinderToDatabase(qrGeneratorActivity: QRGeneratorActivity, timestamp: Date, cylId: String) {
+        val cylinder = HashMap<String, Any>()
+        cylinder["timestamp"] = timestamp
+        val currOwner = Firebase.auth.currentUser?.phoneNumber?.removePrefix("+91") ?: return
+        cylinder["current_owner"] = currOwner
+        cylinder["createdBy"] = currOwner
+        cylinder["isCitizen"] = false
+        val cylCollection = db.collection("cylinders")
+        cylCollection.document(cylId)
+            .set(cylinder)
+            .addOnSuccessListener {
+                qrGeneratorActivity.onQRGenerationSuccess(cylId)
+                Log.d("Tag", "Cylinder added successfully!")
+            }
+            .addOnFailureListener {
+                qrGeneratorActivity.showMessage("Error Generating QR. Try again!")
+            }
+
+        val userCollection = db.collection("users")
+        userCollection.document(currOwner).update("cylinders", FieldValue.arrayUnion(cylId))
     }
 
     private fun getCurrentTimeStamp(): Timestamp {
