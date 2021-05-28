@@ -17,11 +17,12 @@ class EntryTransactionActivity : AppCompatActivity() {
     lateinit var progressBar : ProgressBar
     lateinit var confirmBtn : Button
     lateinit var entryDetailsLL : LinearLayout
+    lateinit var cylinderId: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_entry_transaction)
-
+        cylinderId = intent.getStringExtra("cylinderId").toString()
         cylinderIdTxtView = findViewById(R.id.cylinderIDTxt)
         currentOwnerNameTxtView = findViewById(R.id.currentHolderNameTxt)
         progressBar = findViewById(R.id.entryProgressBar)
@@ -31,18 +32,18 @@ class EntryTransactionActivity : AppCompatActivity() {
         entryDetailsLL.visibility = View.GONE
         confirmBtn.visibility = View.GONE
         progressBar.visibility = View.VISIBLE
-        firebaseDBHelper.getCurrentHolderName("B-28052021-175552", this)
+        firebaseDBHelper.getCurrentHolderName(cylinderId, this)
 
         confirmBtn.setOnClickListener {
             confirmBtn.visibility = View.GONE
             progressBar.visibility = View.VISIBLE
-            firebaseDBHelper.performEntryTransaction("B-28052021-175552", this)
+            firebaseDBHelper.performEntryTransaction(cylinderId, this)
         }
 
     }
 
     fun displayData(currentHolderName : String) {
-        cylinderIdTxtView.text = "B-28052021-175552"
+        cylinderIdTxtView.text = cylinderId
         currentOwnerNameTxtView.text = currentHolderName
         entryDetailsLL.visibility = View.VISIBLE
         confirmBtn.visibility = View.VISIBLE

@@ -46,7 +46,7 @@ class SignInActivity : AppCompatActivity() {
                 is FirebaseTooManyRequestsException -> { }
                 else -> { }
             }
-            Snackbar.make(findViewById(android.R.id.content), "Login Failed. Please Try Again", Snackbar.LENGTH_SHORT)
+            showMessage("Login Failed. Please Try Again")
         }
     }
 

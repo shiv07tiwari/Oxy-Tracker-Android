@@ -34,7 +34,7 @@ class FormActivity : AppCompatActivity() {
     private lateinit var contactNumber: TextInputLayout
     private lateinit var address: TextInputLayout
     private lateinit var picText: TextView
-    private lateinit var cylinderId: TextView
+    private lateinit var cylinderIdTextView: TextView
     private  var imageSet: Boolean = false
     private val MY_CAMERA_PERMISSION_CODE = 101
     private val CAMERA_REQUEST = 102
@@ -42,6 +42,7 @@ class FormActivity : AppCompatActivity() {
     private lateinit var imageBitmap: Bitmap
     private lateinit var imageUri: Uri
     private val context = this
+    lateinit var cylinderId: String
 
     interface OnUploadResult{
         fun onSuccess(url: Task<Uri>)
@@ -51,7 +52,7 @@ class FormActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-
+        cylinderId = intent.getStringExtra("cylinderId").toString()
         firebaseDBHelper = FirebaseDBHelper()
         setContentView(R.layout.activity_form)
         imageView = findViewById(R.id.reciptImage)
@@ -60,7 +61,8 @@ class FormActivity : AppCompatActivity() {
         contactNumber= findViewById(R.id.contactNumber)
         address = findViewById(R.id.address)
         picText = findViewById(R.id.textView5)
-        cylinderId = findViewById(R.id.cylinder_id)
+        cylinderIdTextView = findViewById(R.id.cylinder_id)
+        cylinderIdTextView.text = cylinderId
 
         imageView.setOnClickListener {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
@@ -112,7 +114,7 @@ class FormActivity : AppCompatActivity() {
     }
 
     fun uploadReciptImage(){
-        firebaseDBHelper.pushReciptImage(cylinderId.text.toString(),
+        firebaseDBHelper.pushReciptImage(cylinderIdTextView.text.toString(),
             imageBitmap, object: OnUploadResult{
                 override fun onSuccess(url: Task<Uri>) {
                     Toast.makeText(context, "Upload Successful", Toast.LENGTH_SHORT).show()
