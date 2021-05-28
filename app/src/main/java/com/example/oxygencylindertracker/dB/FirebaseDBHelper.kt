@@ -5,6 +5,7 @@ import android.util.Log
 import com.example.oxygencylindertracker.auth.SignInActivity
 import com.example.oxygencylindertracker.home.HomeActivity
 import com.example.oxygencylindertracker.qrcode.QRGeneratorActivity
+import com.example.oxygencylindertracker.qrcode.QRScannerActivity
 import com.example.oxygencylindertracker.transactions.EntryTransactionActivity
 import com.example.oxygencylindertracker.transactions.FormActivity
 import com.example.oxygencylindertracker.utils.Cylinder
@@ -91,21 +92,22 @@ class FirebaseDBHelper  {
             }
     }
 
-    fun checkIfExitTransaction (cylinderId : String) {
+    fun checkIfExitTransaction (activity: QRScannerActivity, cylinderId : String) {
         val userPhoneNumber = Firebase.auth.currentUser?.phoneNumber?.removePrefix("+91") ?: ""
         db.collection(cylindersDB).document(cylinderId).get()
             .addOnSuccessListener { snapshot ->
                 Log.e("User Validation DOCS", snapshot.exists().toString())
                 when (snapshot.exists()) {
                     false -> {
-                        Log.e("Cylinder Status", "Invalid Cylinder. Please Try Again")
+                        activity.showMessage("Invalid Cylinder. Please Try Again")
+                        activity.resumeScanner()
                     }
                     true -> {
                         val ownerPhoneNumber = snapshot.data?.get("current_owner") ?: ""
                         if (ownerPhoneNumber == userPhoneNumber) {
-                            Log.e("Cylinder Status", "Exit Transaction")
+                            activity.openExitTransactionScreen(cylinderId)
                         } else {
-                            Log.e("Cylinder Status", "Entry Transaction")
+                            activity.openEntryTransactionScreen(cylinderId)
                         }
                     }
                 }
