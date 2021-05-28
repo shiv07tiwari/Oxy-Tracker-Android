@@ -40,6 +40,7 @@ class SignInActivity : AppCompatActivity() {
 
         override fun onVerificationFailed(e: FirebaseException) {
             Log.e("AUTH_MESSAGE", "onVerificationFailed", e)
+
             when (e) {
                 is FirebaseAuthInvalidCredentialsException -> { }
                 is FirebaseTooManyRequestsException -> { }

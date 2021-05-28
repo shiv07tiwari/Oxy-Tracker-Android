@@ -1,16 +1,20 @@
 package com.example.oxygencylindertracker.dB
 
+import android.graphics.Bitmap
 import android.util.Log
 import com.example.oxygencylindertracker.auth.SignInActivity
 import com.example.oxygencylindertracker.home.HomeActivity
 import com.example.oxygencylindertracker.qrcode.QRGeneratorActivity
 import com.example.oxygencylindertracker.transactions.EntryTransactionActivity
+import com.example.oxygencylindertracker.transactions.FormActivity
 import com.example.oxygencylindertracker.utils.Cylinder
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
+import java.io.ByteArrayOutputStream
 import java.lang.Exception
 import java.text.SimpleDateFormat
 import java.util.*
@@ -19,6 +23,7 @@ class FirebaseDBHelper  {
 
     companion object {
         private val db = Firebase.firestore
+        private val storage = Firebase.storage("gs://o2-tracker.appspot.com")
     }
 
     private val isCitizenKey = "isCitizen"
@@ -168,7 +173,25 @@ class FirebaseDBHelper  {
 
     }
 
-    // Helper functions
+     fun pushReciptImage(cylinderId: String, bitmap: Bitmap, callback: FormActivity.OnUploadResult){
+        val storageRef = storage.reference
+         //todo check later for better file name
+        val imageref = storageRef.child(cylinderId+getCurrentTimeStamp()+".jpg")
+
+        val baos = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+        val data = baos.toByteArray()
+
+        var uploadTask = imageref.putBytes(data)
+        uploadTask.addOnFailureListener {
+            callback.onFaliure()
+        }.addOnSuccessListener { taskSnapshot ->
+            callback.onSuccess(imageref.downloadUrl)
+            taskSnapshot
+        }
+
+
+    }
     private fun Timestamp.getDateTime(): String {
         val sdf = SimpleDateFormat("MM/dd/yyyy")
         val netDate = Date(this.seconds * 1000)

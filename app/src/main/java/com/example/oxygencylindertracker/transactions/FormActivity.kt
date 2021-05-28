@@ -1,19 +1,28 @@
 package com.example.oxygencylindertracker.transactions
 
 import android.Manifest
+import android.R.attr.thumbnail
 import android.app.Activity
+import android.content.ContentValues
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.View
-import android.widget.*
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.ContextCompat
 import com.example.oxygencylindertracker.R
+import com.example.oxygencylindertracker.dB.FirebaseDBHelper
+import com.google.android.gms.tasks.Task
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
 
 
@@ -25,13 +34,25 @@ class FormActivity : AppCompatActivity() {
     private lateinit var contactNumber: TextInputLayout
     private lateinit var address: TextInputLayout
     private lateinit var picText: TextView
+    private lateinit var cylinderId: TextView
     private  var imageSet: Boolean = false
     private val MY_CAMERA_PERMISSION_CODE = 101
     private val CAMERA_REQUEST = 102
+    private lateinit var firebaseDBHelper: FirebaseDBHelper
+    private lateinit var imageBitmap: Bitmap
+    private lateinit var imageUri: Uri
+    private val context = this
+
+    interface OnUploadResult{
+        fun onSuccess(url: Task<Uri>)
+        fun onFaliure()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+
+        firebaseDBHelper = FirebaseDBHelper()
         setContentView(R.layout.activity_form)
         imageView = findViewById(R.id.reciptImage)
         submitBtn = findViewById(R.id.submitBtn);
@@ -39,6 +60,7 @@ class FormActivity : AppCompatActivity() {
         contactNumber= findViewById(R.id.contactNumber)
         address = findViewById(R.id.address)
         picText = findViewById(R.id.textView5)
+        cylinderId = findViewById(R.id.cylinder_id)
 
         imageView.setOnClickListener {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
@@ -49,8 +71,18 @@ class FormActivity : AppCompatActivity() {
                 )
 
             } else {
-                val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-                startActivityForResult(cameraIntent, CAMERA_REQUEST)
+//                val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+//                startActivityForResult(cameraIntent, CAMERA_REQUEST)
+                var values = ContentValues()
+                values.put(MediaStore.Images.Media.TITLE, "New Picture")
+                values.put(MediaStore.Images.Media.DESCRIPTION, "From your Camera")
+                //todo handle return later
+                imageUri = contentResolver.insert(
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values
+                ) ?: return@setOnClickListener
+                val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri)
+                startActivityForResult(intent, CAMERA_REQUEST)
             }
         }
 
@@ -60,6 +92,7 @@ class FormActivity : AppCompatActivity() {
     }
 
     private fun checkInputs(){
+        uploadReciptImage()
         if(customerName.editText?.text !=null && customerName.editText?.text!!.isEmpty()!!){
             customerName.requestFocus()
             Toast.makeText(this, "This field cannot remain empty", Toast.LENGTH_LONG).show()
@@ -76,8 +109,23 @@ class FormActivity : AppCompatActivity() {
             Toast.makeText(this, "Invalid contact number", Toast.LENGTH_LONG).show()
         }
 
-
     }
+
+    fun uploadReciptImage(){
+        firebaseDBHelper.pushReciptImage(cylinderId.text.toString(),
+            imageBitmap, object: OnUploadResult{
+                override fun onSuccess(url: Task<Uri>) {
+                    Toast.makeText(context, "Upload Successful", Toast.LENGTH_SHORT).show()
+                    //todo upload user and later transcations
+                }
+                override fun onFaliure() {
+                    Toast.makeText(context, "Upload failed", Toast.LENGTH_SHORT).show()
+                }
+
+            })
+    }
+
+
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -99,9 +147,17 @@ class FormActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode === CAMERA_REQUEST && resultCode === Activity.RESULT_OK) {
-            imageView.setImageBitmap(data!!.extras!!.get("data") as Bitmap?)
-            imageSet = true
-            picText.visibility = View.GONE
+
+            try {
+                imageBitmap = MediaStore.Images.Media.getBitmap(
+                    this.contentResolver, imageUri
+                )
+                imageView.setImageBitmap(imageBitmap)
+                picText.visibility = View.GONE
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+
         }
     }
 }

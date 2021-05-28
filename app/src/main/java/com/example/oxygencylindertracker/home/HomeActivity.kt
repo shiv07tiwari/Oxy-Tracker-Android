@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.oxygencylindertracker.R
 import com.example.oxygencylindertracker.dB.FirebaseDBHelper
+import com.example.oxygencylindertracker.transactions.FormActivity
 import com.example.oxygencylindertracker.qrcode.QRGeneratorActivity
 import com.example.oxygencylindertracker.qrcode.QRScannerActivity
 import com.example.oxygencylindertracker.utils.Cylinder
@@ -28,11 +29,13 @@ class HomeActivity : AppCompatActivity() {
     lateinit var mLayoutManager: RecyclerView.LayoutManager
     lateinit var mProgressBar : ProgressBar
     lateinit var firebaseDBHelper : FirebaseDBHelper
+
     lateinit var searchEditText : EditText
     lateinit var filtersLL : LinearLayout
     lateinit var scanQRButton : Button
     var cylinders : List<Cylinder> = listOf()
     lateinit var localStorageHelper: LocalStorageHelper
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,13 +48,16 @@ class HomeActivity : AppCompatActivity() {
         totalCylindersText = findViewById(R.id.homeCylinderText)
         userTextView = findViewById(R.id.homeUserName)
         mRecyclerView = findViewById(R.id.homeCylinderRV)
+
         searchEditText = findViewById(R.id.editTextSearch)
         filtersLL = findViewById(R.id.filtersLL)
         scanQRButton = findViewById(R.id.homeScanQRBtn)
 
         userTextView.text = "Welcome ${localStorageHelper.getUserName(this)}"
+
         mLayoutManager = LinearLayoutManager(this)
         mRecyclerView.layoutManager = mLayoutManager
+
         fetchCylindersData()
 
         scanQRButton = findViewById(R.id.homeScanQRBtn)
@@ -70,8 +76,10 @@ class HomeActivity : AppCompatActivity() {
     }
 
     fun displayCylinderList (cylinders: List<Cylinder>) {
+
         this.cylinders = cylinders
         totalCylindersText.text = "You have a custody of ${cylinders.size} Cylinder(s)"
+
         mAdapter = CylinderAdapter(cylinders)
         mRecyclerView.adapter = mAdapter
         mRecyclerView.visibility = View.VISIBLE
