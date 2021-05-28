@@ -34,6 +34,7 @@ class FirebaseDBHelper  {
         Log.e("Validating Phone Number", " :  $userPhoneNumber")
         db.collection(usersDB).document(userPhoneNumber).get()
             .addOnSuccessListener { snapshot ->
+                val data = snapshot.data
                 Log.e("User Validation DOCS", snapshot.exists().toString())
                 when (snapshot.exists()) {
                     false -> {
@@ -41,8 +42,9 @@ class FirebaseDBHelper  {
                         activity.showMessage("You are not authorized. Please contact the Admin")
                     }
                     true -> {
+                        val userName = data?.get("name") as String
                         Log.e("Auth Success", "User Validated on Firebase")
-                        activity.navigateToHomeScreen()
+                        activity.navigateToHomeScreen(snapshot.id, userName)
                     }
                 }
             }

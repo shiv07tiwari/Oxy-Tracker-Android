@@ -4,8 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:backgroundTint="@color/white"
-    android:background="@color/white"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".auth.SignInActivity"
     android:orientation="vertical">
@@ -15,17 +13,13 @@
             android:layout_width="match_parent"
             app:layout_constraintTop_toTopOf="parent"
             android:layout_height="wrap_content"
-            app:boxBackgroundColor="@color/white"
             android:layout_marginTop="20dp"
-            android:textColorHint="@color/black"
             android:theme="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
             android:hint="Enter Phone Number" >
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
-                android:textColorHint="@color/black"
                 android:layout_height="wrap_content"
-                android:textColor="@color/black"
                 />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -34,11 +28,17 @@
             android:layout_width="match_parent"
             app:layout_constraintTop_toBottomOf="@id/authPhoneNumberText"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/black"
-            android:textColorHint="@color/white"
             android:layout_marginTop="20dp"
             android:hint="Get OTP" >
-
         </Button>
+
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_gravity="center"
+        app:layout_constraintTop_toBottomOf="@id/authPhoneNumberText"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:id="@+id/signInProgressBar"
+        android:layout_height="wrap_content" />
 
 </LinearLayout>
