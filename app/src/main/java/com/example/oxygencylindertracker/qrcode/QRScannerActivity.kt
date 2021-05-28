@@ -1,8 +1,10 @@
 package com.example.oxygencylindertracker.qrcode
 
 import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
+import com.example.oxygencylindertracker.transactions.EntryTransactionActivity
 import me.dm7.barcodescanner.zxing.ZXingScannerView
 import com.google.zxing.Result
 
@@ -28,7 +30,10 @@ class QRScannerActivity: Activity(), ZXingScannerView.ResultHandler {
     }
 
     override fun handleResult(rawResult: Result) {
-        Toast.makeText(this, rawResult.getText(), Toast.LENGTH_SHORT).show()
-        mScannerView.resumeCameraPreview(this)
+        Toast.makeText(this, rawResult.text, Toast.LENGTH_SHORT).show()
+        val intent = Intent(this, EntryTransactionActivity::class.java)
+        intent.putExtra("CylinderId", rawResult.text)
+        startActivity(intent)
+        finish()
     }
 }
