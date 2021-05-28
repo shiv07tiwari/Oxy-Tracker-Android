@@ -1,12 +1,10 @@
-package com.example.oxygencylindertracker.home
+package com.example.oxygencylindertracker.transactions
 
 import android.Manifest
 import android.app.Activity
-import android.bluetooth.le.AdvertiseData
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.opengl.Visibility
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.View
@@ -17,7 +15,6 @@ import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.ContextCompat
 import com.example.oxygencylindertracker.R
 import com.google.android.material.textfield.TextInputLayout
-import java.net.Inet4Address
 
 
 class FormActivity : AppCompatActivity() {

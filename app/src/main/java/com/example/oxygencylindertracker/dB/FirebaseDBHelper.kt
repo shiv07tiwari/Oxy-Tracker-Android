@@ -3,11 +3,14 @@ package com.example.oxygencylindertracker.dB
 import android.util.Log
 import com.example.oxygencylindertracker.auth.SignInActivity
 import com.example.oxygencylindertracker.home.HomeActivity
+import com.example.oxygencylindertracker.transactions.EntryTransactionActivity
 import com.example.oxygencylindertracker.utils.Cylinder
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import java.lang.Exception
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -22,6 +25,8 @@ class FirebaseDBHelper  {
     private val timestampKey = "timestamp"
     private val usersDB = "users"
     private val cylindersDB = "cylinders"
+    private val cylindersKey = "cylinders"
+    private val nameKey = "name"
 
     fun validateUserLogin (activity: SignInActivity) {
         val userPhoneNumber = Firebase.auth.currentUser?.phoneNumber?.removePrefix("+91") ?: ""
@@ -48,7 +53,7 @@ class FirebaseDBHelper  {
             }
     }
 
-    fun getCylindersDataForUser(activity: HomeActivity) {
+    fun getCylindersDataForUser (activity: HomeActivity) {
         val userPhoneNumber = Firebase.auth.currentUser?.phoneNumber?.removePrefix("+91") ?: ""
         db.collection(cylindersDB).whereEqualTo(currentOwnerKey, userPhoneNumber).get()
             .addOnSuccessListener { documents ->
@@ -103,8 +108,61 @@ class FirebaseDBHelper  {
             }
     }
 
-    private fun String.convertToDBPhoneNumber() : String {
-        return this.removePrefix("+91")
+    fun performEntryTransaction (cylinderId: String, activity: EntryTransactionActivity) {
+        val userPhoneNumber = Firebase.auth.currentUser?.phoneNumber?.removePrefix("+91") ?: ""
+        db.runTransaction {transaction ->
+
+            val cylinderDocument = db.collection(cylindersDB).document(cylinderId)
+            val cylinderSnapshot = transaction.get(cylinderDocument)
+            if (!cylinderSnapshot.exists()) {
+                throw Exception("Invalid Cylinder ID")
+            }
+            val currentOwnerId = cylinderSnapshot.getString(currentOwnerKey)
+                ?: throw Exception("Current Owner is Null inside Cylinder")
+
+            Log.e("OWNER", currentOwnerId)
+
+            val currentOwnerSnapshot = db.collection(usersDB).document(currentOwnerId)
+            val currentOwnerCylinders = transaction.get(currentOwnerSnapshot).get(cylindersKey) as List<String>
+            val newOwnerSnapshot = db.collection(usersDB).document(userPhoneNumber)
+
+            transaction.update(currentOwnerSnapshot, cylindersKey, currentOwnerCylinders.filter { it != cylinderId })
+            transaction.update(newOwnerSnapshot, cylindersKey, FieldValue.arrayUnion(cylinderId))
+            transaction.update(cylinderDocument, currentOwnerKey, userPhoneNumber)
+            transaction.update(cylinderDocument, timestampKey, getCurrentTimeStamp())
+
+        }.addOnSuccessListener {
+            Log.e("performEntryTransaction", "SUCCESS")
+            activity.onTransactionSuccess()
+        }.addOnFailureListener {
+            Log.e("performEntryTransaction", "FAILURE $it")
+            activity.onTransactionFailure()
+        }
+    }
+
+    fun getCurrentHolderName(cylinderId: String, activity: EntryTransactionActivity) {
+
+        db.runTransaction { transaction ->
+            val cylinderDocument = db.collection(cylindersDB).document(cylinderId)
+            val cylinderSnapshot = transaction.get(cylinderDocument)
+            if (!cylinderSnapshot.exists()) {
+                throw Exception("Invalid Cylinder ID")
+            }
+            val currentOwnerId = cylinderSnapshot.getString(currentOwnerKey)
+                ?: throw Exception("Current Owner is Null inside Cylinder")
+            val currentOwnerSnapshot = db.collection(usersDB).document(currentOwnerId)
+            transaction.get(currentOwnerSnapshot).get(nameKey) as String
+
+        }.addOnSuccessListener {
+            if (it.isNullOrEmpty()) {
+                activity.showUserErrorMessage("Unexpected Error. Please try again")
+            } else {
+                activity.displayData(it)
+            }
+        }.addOnFailureListener {
+            activity.showUserErrorMessage("Unexpected Error. Please try again")
+        }
+
     }
 
     // Helper functions
@@ -112,5 +170,9 @@ class FirebaseDBHelper  {
         val sdf = SimpleDateFormat("MM/dd/yyyy")
         val netDate = Date(this.seconds * 1000)
         return sdf.format(netDate)
+    }
+
+    private fun getCurrentTimeStamp(): Timestamp {
+        return Timestamp.now()
     }
 }

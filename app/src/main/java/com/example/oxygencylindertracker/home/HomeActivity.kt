@@ -23,7 +23,6 @@ class HomeActivity : AppCompatActivity() {
     lateinit var userTextView : TextView
     lateinit var  mAdapter: Adapter<CylinderAdapter.CylinderItemViewHolder>
     lateinit var mLayoutManager: RecyclerView.LayoutManager
-    var auth = Firebase.auth
     lateinit var mProgressBar : ProgressBar
     lateinit var firebaseDBHelper : FirebaseDBHelper
 
@@ -56,7 +55,10 @@ class HomeActivity : AppCompatActivity() {
         mRecyclerView.visibility = View.VISIBLE
         mProgressBar.visibility = View.GONE
         totalCylindersText.visibility = View.VISIBLE
-        firebaseDBHelper.checkIfExitTransaction("A-27052021-102659")
+
+        // Testing code
+        //firebaseDBHelper.checkIfExitTransaction("A-27052021-102659")
+        //firebaseDBHelper.performEntryTransaction("B-28052021-175552")
     }
 
     fun displayEmptyList () {
