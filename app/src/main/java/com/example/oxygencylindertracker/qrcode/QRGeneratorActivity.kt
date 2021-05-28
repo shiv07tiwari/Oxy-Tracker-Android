@@ -37,66 +37,70 @@ class QRGeneratorActivity : AppCompatActivity() {
     lateinit var saveQRLayout: LinearLayout
     lateinit var qrIdLayout: LinearLayout
     lateinit var qrIdTextView: TextView
+    lateinit var qrCodeImageView: ImageView
+    lateinit var cylTypeEditText: EditText
+    var bitmap: Bitmap? = null
+    var qrId: String = ""
 
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_qrgenerator)
         firebaseDBHelper = FirebaseDBHelper()
-
-        val qrCodeImageView = findViewById<ImageView>(R.id.qr_code)
-        qrIdTextView = findViewById<TextView>(R.id.qr_id)
+        qrCodeImageView = findViewById(R.id.qr_code)
+        qrIdTextView = findViewById(R.id.qr_id)
         qrIdLayout = findViewById(R.id.qr_id_layout)
         saveQRLayout = findViewById(R.id.save_qr_layout)
-        val cylTypeEditText = findViewById<EditText>(R.id.cyl_type)
+        cylTypeEditText = findViewById(R.id.cyl_type)
         val generateQrButton = findViewById<Button>(R.id.generate_qr_button)
         val copyCylIdButton = findViewById<Button>(R.id.copy_cyl_id)
         val downloadQRButton = findViewById<Button>(R.id.save_qr_button)
         val shareQRButton = findViewById<Button>(R.id.share_qr_btn)
 
-        var bitmap: Bitmap? = null
-        var qrId = ""
-
         generateQrButton.setOnClickListener{
-
-            val sdf = SimpleDateFormat("ddMMyyyy-hhmmss")
-            val currDate = Date()
-            val currentDate = sdf.format(currDate).toString()
-            val cylType = cylTypeEditText.text.toString()
-            qrId = cylType + "-" + currentDate
-            if (TextUtils.isEmpty(cylType)) {
-                Toast.makeText(applicationContext,
-                    "Enter Cylinder Id to generate QR Code",
-                    Toast.LENGTH_SHORT).show()
-            }else {
-                val multiFormatWriter = MultiFormatWriter()
-                try {
-                    val bitMatrix = multiFormatWriter.encode(qrId, BarcodeFormat.QR_CODE, 300, 300)
-                    val barcodeEncoder = BarcodeEncoder()
-                    bitmap = barcodeEncoder.createBitmap(bitMatrix)
-                    qrCodeImageView.setImageBitmap(bitmap)
-                    firebaseDBHelper.addCylinderToDatabase(this, currDate, qrId)
-                } catch (e: WriterException) {
-                    e.printStackTrace()
-                }
-            }
+            generateQRCode()
         }
 
         copyCylIdButton.setOnClickListener {
-            val textToCopy = qrIdTextView.text
-            val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-            val clipData = ClipData.newPlainText("text", textToCopy)
-            clipboardManager.setPrimaryClip(clipData)
-            Toast.makeText(this, "Cylinder ID copied to clipboard", Toast.LENGTH_LONG).show()
+            copyCylinderId()
         }
 
         downloadQRButton.setOnClickListener{
-            bitmap?.let { saveImageToInternalStorage(it, qrId) }
+            if (qrId != "") {
+                bitmap?.let { saveImageToInternalStorage(it, qrId) }
+            }
         }
 
         shareQRButton.setOnClickListener {
             bitmap?.let { shareQRCode(it)}
         }
+    }
+
+    private fun generateQRCode(){
+        val sdf = SimpleDateFormat("ddMMyyyy-hhmmss")
+        val currDate = Date()
+        val currentDate = sdf.format(currDate).toString()
+        val cylType = cylTypeEditText.text.toString()
+        qrId = cylType + "-" + currentDate
+        if (TextUtils.isEmpty(cylType)) {
+            showMessage("Enter Cylinder Id to generate QR Code")
+        }else {
+            try {
+                bitmap = getQRBitmap(qrId)
+                firebaseDBHelper.addCylinderToDatabase(this, currDate, qrId)
+            } catch (e: WriterException) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    private fun getQRBitmap(qrId: String): Bitmap?{
+        val multiFormatWriter = MultiFormatWriter()
+        val bitMatrix = multiFormatWriter.encode(qrId, BarcodeFormat.QR_CODE, 300, 300)
+        val barcodeEncoder = BarcodeEncoder()
+        bitmap = barcodeEncoder.createBitmap(bitMatrix)
+        qrCodeImageView.setImageBitmap(bitmap)
+        return bitmap
     }
 
     fun onQRGenerationSuccess(qrId: String){
@@ -149,5 +153,13 @@ class QRGeneratorActivity : AppCompatActivity() {
 
         share.putExtra(Intent.EXTRA_STREAM, uri)
         startActivity(Intent.createChooser(share, "Share Image"))
+    }
+
+    private fun copyCylinderId(){
+        val textToCopy = qrIdTextView.text
+        val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clipData = ClipData.newPlainText("text", textToCopy)
+        clipboardManager.setPrimaryClip(clipData)
+        showMessage("Cylinder ID copied to clipboard")
     }
 }
