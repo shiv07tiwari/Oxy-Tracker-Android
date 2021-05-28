@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.oxygencylindertracker"
-        minSdkVersion 16
+        minSdkVersion 19
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
@@ -53,6 +53,7 @@ dependencies {
     implementation 'com.google.zxing:core:3.2.1'
     implementation 'com.journeyapps:zxing-android-embedded:3.2.0@aar'
     implementation 'androidx.multidex:multidex:2.0.1'
+    implementation 'com.journeyapps:zxing-android-embedded:3.6.0'
 
     // dB Storage
     implementation 'com.google.firebase:firebase-firestore-ktx'

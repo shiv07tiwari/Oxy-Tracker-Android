@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView.Adapter
 import com.example.oxygencylindertracker.R
 import com.example.oxygencylindertracker.dB.FirebaseDBHelper
 import com.example.oxygencylindertracker.qrcode.QRGeneratorActivity
+import com.example.oxygencylindertracker.qrcode.QRScannerActivity
 import com.example.oxygencylindertracker.utils.Cylinder
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -31,6 +32,7 @@ class HomeActivity : AppCompatActivity() {
     var auth = Firebase.auth
     lateinit var mProgressBar : ProgressBar
     lateinit var firebaseDBHelper : FirebaseDBHelper
+    lateinit var homeScanQRBtn: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,6 +47,11 @@ class HomeActivity : AppCompatActivity() {
         mLayoutManager = LinearLayoutManager(this)
         mRecyclerView.layoutManager = mLayoutManager
         fetchCylindersData()
+
+        homeScanQRBtn = findViewById(R.id.homeScanQRBtn)
+        homeScanQRBtn.setOnClickListener {
+            startActivity(Intent(this, QRScannerActivity::class.java))
+        }
     }
 
     private fun fetchCylindersData() {
