@@ -16,7 +16,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.OxygenCylinderTracker">
         <activity android:name=".qrcode.QRScannerActivity"
-                  android:screenOrientation="fullSensor"
+                  android:screenOrientation="portrait"
                   tools:replace="screenOrientation" >
         </activity>
         <activity android:name=".qrcode.QRGeneratorActivity"></activity>
