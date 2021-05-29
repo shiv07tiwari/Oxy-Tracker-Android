@@ -8,12 +8,15 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.text.TextUtils
 import android.util.Log
+import android.view.View
 import android.view.View.VISIBLE
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import com.example.oxygencylindertracker.R
 import com.example.oxygencylindertracker.dB.FirebaseDBHelper
+import com.example.oxygencylindertracker.transactions.FormActivity
+import com.google.android.gms.tasks.Task
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.MultiFormatWriter
 import com.google.zxing.WriterException
@@ -31,11 +34,21 @@ class QRGeneratorActivity : AppCompatActivity() {
     lateinit var firebaseDBHelper: FirebaseDBHelper
     lateinit var saveQRLayout: LinearLayout
     lateinit var qrIdLayout: LinearLayout
+    lateinit var typeLayout: LinearLayout
     lateinit var qrIdTextView: TextView
     lateinit var qrCodeImageView: ImageView
     lateinit var cylTypeEditText: EditText
+    lateinit var qrGeneratorProgressBar: ProgressBar
+    lateinit var generateQrButton: Button
+    lateinit var generateNewQrButton: Button
+
     var bitmap: Bitmap? = null
     var qrId: String = ""
+
+    interface OnUploadResult{
+        fun onSuccess(url: Task<Uri>)
+        fun onFaliure()
+    }
 
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,10 +60,15 @@ class QRGeneratorActivity : AppCompatActivity() {
         qrIdLayout = findViewById(R.id.qr_id_layout)
         saveQRLayout = findViewById(R.id.save_qr_layout)
         cylTypeEditText = findViewById(R.id.cyl_type)
-        val generateQrButton = findViewById<Button>(R.id.generate_qr_button)
+        generateQrButton = findViewById(R.id.generate_qr_button)
+        generateNewQrButton = findViewById(R.id.new_qr_btn)
+        qrGeneratorProgressBar = findViewById(R.id.qrGeneratorProgressBar)
+        typeLayout = findViewById(R.id.type_layout)
         val copyCylIdButton = findViewById<Button>(R.id.copy_cyl_id)
         val downloadQRButton = findViewById<Button>(R.id.save_qr_button)
         val shareQRButton = findViewById<Button>(R.id.share_qr_btn)
+
+        qrGeneratorProgressBar.visibility = View.GONE
 
         generateQrButton.setOnClickListener{
             generateQRCode()
@@ -69,6 +87,10 @@ class QRGeneratorActivity : AppCompatActivity() {
         shareQRButton.setOnClickListener {
             bitmap?.let { shareQRCode(it)}
         }
+
+        generateNewQrButton.setOnClickListener {
+            recreate()
+        }
     }
 
     private fun generateQRCode(){
@@ -82,7 +104,8 @@ class QRGeneratorActivity : AppCompatActivity() {
         }else {
             try {
                 bitmap = getQRBitmap(qrId)
-                firebaseDBHelper.addCylinderToDatabase(this, currDate, qrId)
+                beforeQRScan()
+                uploadQRCodeImage(bitmap, currDate)
             } catch (e: WriterException) {
                 e.printStackTrace()
             }
@@ -94,14 +117,17 @@ class QRGeneratorActivity : AppCompatActivity() {
         val bitMatrix = multiFormatWriter.encode(qrId, BarcodeFormat.QR_CODE, 300, 300)
         val barcodeEncoder = BarcodeEncoder()
         bitmap = barcodeEncoder.createBitmap(bitMatrix)
-        qrCodeImageView.setImageBitmap(bitmap)
         return bitmap
     }
 
     fun onQRGenerationSuccess(qrId: String){
+        qrGeneratorProgressBar.visibility = View.GONE
         qrIdTextView.text = qrId
         qrIdLayout.visibility = VISIBLE
         saveQRLayout.visibility = VISIBLE
+        cylTypeEditText.text.clear()
+        typeLayout.visibility = View.GONE
+        qrCodeImageView.setImageBitmap(bitmap)
     }
 
     fun showMessage(message : String) {
@@ -156,5 +182,26 @@ class QRGeneratorActivity : AppCompatActivity() {
         val clipData = ClipData.newPlainText("text", textToCopy)
         clipboardManager.setPrimaryClip(clipData)
         showMessage("Cylinder ID copied to clipboard")
+    }
+
+    private fun uploadQRCodeImage(bitmap: Bitmap?, currDate: Date){
+        val context = this
+        firebaseDBHelper.pushGeneratedQRCodeImage(qrId,
+            bitmap, object: OnUploadResult {
+                override fun onSuccess(url: Task<Uri>) {
+                    firebaseDBHelper.addCylinderToDatabase(context, currDate, qrId, url)
+                }
+                override fun onFaliure() {
+                    showMessage("Some error occurred. Please try again")
+                }
+
+            })
+    }
+
+    fun beforeQRScan(){
+        qrGeneratorProgressBar.visibility = VISIBLE
+        generateQrButton.visibility = View.GONE
+        qrIdLayout.visibility = View.GONE
+        saveQRLayout.visibility = View.GONE
     }
 }
