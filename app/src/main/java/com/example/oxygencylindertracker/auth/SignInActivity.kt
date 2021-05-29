@@ -93,7 +93,7 @@ class SignInActivity : AppCompatActivity() {
         firebaseDBHelper = FirebaseDBHelper()
         localStorageHelper = LocalStorageHelper()
 
-        phoneNumberEditText = findViewById<EditText>(R.id.authPhoneNumberText)
+        phoneNumberEditText = findViewById(R.id.authPhoneNumberText)
 
         OTPEditText = findViewById(R.id.authOTPText)
 
@@ -129,6 +129,9 @@ class SignInActivity : AppCompatActivity() {
     fun showMessage(message : String) {
         mProgressBar.visibility = View.GONE
         getOTPButton.visibility = View.VISIBLE
+        phoneNumberEditText.visibility = View.VISIBLE
+        logInButton.visibility = View.GONE
+        OTPEditText.visibility = View.GONE
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 

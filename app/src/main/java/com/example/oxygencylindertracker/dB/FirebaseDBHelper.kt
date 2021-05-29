@@ -79,6 +79,42 @@ class FirebaseDBHelper  {
 
     fun getCylindersDataForUser (activity: HomeActivity) {
         val userPhoneNumber = Firebase.auth.currentUser?.phoneNumber?.removePrefix("+91") ?: ""
+
+        db.collection(cylindersDB).whereEqualTo(currentOwnerKey, userPhoneNumber)
+            .addSnapshotListener{ documents , error ->
+                if (error != null) {
+                    Log.e("TAG", "Error getting documents: ", error)
+                    activity.showMessage("Error fetching Cylinders. Please try again later")
+                    activity.displayEmptyList()
+                } else {
+                    val cylinders = mutableListOf<Cylinder>()
+                    if (documents != null) {
+                        documents.documents.map { snapshot ->
+                            val data = snapshot.data
+                            if (data != null) {
+                                val timeStamp = data[timestampKey] as Timestamp
+                                val isCitizen = data[isCitizenKey] as Boolean
+                                cylinders.add(
+                                    Cylinder(
+                                        snapshot.id,
+                                        data["current_owner"].toString(),
+                                        timeStamp.getDateTime(),
+                                        timeStamp.seconds,
+                                        snapshot.id[0].toString(),
+                                        isCitizen
+                                    ))
+                            }
+                        }
+                        Log.e("Cylinders", cylinders.toString())
+                        activity.displayCylinderList(cylinders)
+                    } else {
+                        Log.d("TAG", "Current data: null")
+                        activity.displayCylinderList(cylinders)
+                    }
+                }
+
+        }
+
         db.collection(cylindersDB).whereEqualTo(currentOwnerKey, userPhoneNumber).get()
             .addOnSuccessListener { documents ->
                 val cylinders = mutableListOf<Cylinder>()
