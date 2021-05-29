@@ -33,11 +33,11 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="32dp"
                 android:layout_marginLeft="32dp"
-                android:layout_marginTop="32dp"
+                android:layout_marginTop="16dp"
                 android:text="Cylinder ID"
                 android:textSize="36sp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toBottomOf="@+id/imageView" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/customerName"
@@ -138,7 +138,7 @@
                 android:layout_marginRight="32dp"
                 android:text="Submit"
 
-                android:textColor="#FFFFFF"
+                android:textColor="@color/colorPrimary"
                 app:backgroundTint="@color/lightpink"
                 app:cornerRadius="15dp"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -173,6 +173,18 @@
                 app:layout_constraintStart_toStartOf="@+id/reciptImage"
                 app:layout_constraintTop_toTopOf="@+id/reciptImage"
                 app:layout_constraintVertical_bias="0.59" />
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="229dp"
+                android:layout_height="56dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="16dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/appname"
+                tools:ignore="VectorDrawableCompat" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>

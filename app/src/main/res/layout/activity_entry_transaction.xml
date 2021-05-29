@@ -19,53 +19,63 @@
         <TextView
             android:id="@+id/acceptFromTxt"
             android:layout_width="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:text="ACCEPT CYLINDER"
+            android:textSize="24sp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            android:text="ACCEPT CYLINDER"
-            android:layout_height="wrap_content">
-        </TextView>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/cylinderIDTxt"
             android:layout_width="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/acceptFromTxt"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:text="B-26101999-345678"
+            android:textColor="@color/black"
+            android:textSize="28sp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            android:text="B-26101999-345678"
-            android:layout_height="wrap_content">
-        </TextView>
+            app:layout_constraintTop_toBottomOf="@id/acceptFromTxt" />
 
         <TextView
             android:id="@+id/fromTxt"
             android:layout_width="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/cylinderIDTxt"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:text="from"
+            android:textSize="24sp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            android:text="from"
-            android:layout_height="wrap_content">
-        </TextView>
+            app:layout_constraintTop_toBottomOf="@id/cylinderIDTxt" />
 
         <TextView
             android:id="@+id/currentHolderNameTxt"
             android:layout_width="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/fromTxt"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:text="Shivansh Tiwari ?"
+            android:textSize="24sp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            android:text="Shivansh Tiwari"
-            android:layout_height="wrap_content">
-        </TextView>
+            app:layout_constraintTop_toBottomOf="@id/fromTxt" />
     </LinearLayout>
-
 
 
     <Button
         android:id="@+id/confirmBtn"
         android:layout_width="match_parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
         android:text="CONFIRM"
-        android:layout_height="wrap_content">
-    </Button>
+        app:cornerRadius="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <ProgressBar
         android:layout_width="wrap_content"
@@ -75,5 +85,17 @@
         app:layout_constraintRight_toRightOf="parent"
         android:id="@+id/entryProgressBar"
         android:layout_height="wrap_content" />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="229dp"
+        android:layout_height="56dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/appname"
+        tools:ignore="VectorDrawableCompat" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

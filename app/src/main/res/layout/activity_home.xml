@@ -41,6 +41,7 @@
         android:layout_marginTop="16dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
+        android:backgroundTint="@color/colorPrimary"
         android:hint="Search Cylinder"
         android:shadowColor="@color/colorPrimary"
         android:textColorHighlight="@color/lightpink"

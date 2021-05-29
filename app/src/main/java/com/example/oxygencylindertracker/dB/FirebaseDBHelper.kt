@@ -85,9 +85,11 @@ class FirebaseDBHelper  {
                                 snapshot.id,
                                 data["current_owner"].toString(),
                                 timeStamp.getDateTime(),
+                                timeStamp.seconds,
                                 snapshot.id[0].toString(),
                                 isCitizen
                             ))
+
                     }
                 }
                 Log.e("Cylinders", cylinders.toString())

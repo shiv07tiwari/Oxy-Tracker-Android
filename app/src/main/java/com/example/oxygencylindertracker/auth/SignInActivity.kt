@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Button
+import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.Toast
 import com.example.oxygencylindertracker.R
@@ -62,11 +63,11 @@ class SignInActivity : AppCompatActivity() {
         mProgressBar = findViewById(R.id.signInProgressBar)
         mProgressBar.visibility = View.GONE
 
-        val phoneNumberEditText = findViewById<TextInputLayout>(R.id.authPhoneNumberText)
+        val phoneNumberEditText = findViewById<EditText>(R.id.authPhoneNumberText)
         getOTPButton = findViewById(R.id.authGetOTPButton)
 
         getOTPButton.setOnClickListener {
-            authenticateUser(phoneNumberEditText.editText?.text.toString())
+            authenticateUser(phoneNumberEditText.text.toString())
         }
     }
 
