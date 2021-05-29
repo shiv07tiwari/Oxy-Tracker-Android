@@ -290,7 +290,7 @@ class FirebaseDBHelper  {
         cylinder["current_owner"] = currOwner
         cylinder["createdBy"] = currOwner
         cylinder["isCitizen"] = false
-        val cylCollection = db.collection("cylinders")
+        val cylCollection = db.collection(cylindersDB)
         cylCollection.document(cylId)
             .set(cylinder)
             .addOnSuccessListener {
@@ -301,8 +301,8 @@ class FirebaseDBHelper  {
                 qrGeneratorActivity.showMessage("Error Generating QR. Try again!")
             }
 
-        val userCollection = db.collection("users")
-        userCollection.document(currOwner).update("cylinders", FieldValue.arrayUnion(cylId))
+        val userCollection = db.collection(usersDB)
+        userCollection.document(currOwner).update(cylindersKey, FieldValue.arrayUnion(cylId))
     }
 
     private fun Timestamp.getDateTime(): String {
