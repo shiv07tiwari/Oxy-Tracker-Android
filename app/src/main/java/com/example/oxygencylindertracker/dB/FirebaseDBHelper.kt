@@ -289,7 +289,7 @@ class FirebaseDBHelper  {
     }
 
      fun pushReceiptImage(cylinderId: String, bitmap: Bitmap, callback: FormActivity.OnUploadResult){
-        val currTimestamp = getCurrentTimeStamp()
+        val currTimestamp = getCurrentTimeStamp().seconds
         val imageref = storageRef.child("$receiptStorageDir$cylinderId$currTimestamp$imageExtension")
         val baos = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
@@ -340,8 +340,8 @@ class FirebaseDBHelper  {
         userCollection.document(currOwner).update(cylindersKey, FieldValue.arrayUnion(cylId))
     }
 
-    private fun getCurrentTimeStamp(): String {
-        return Timestamp.now().seconds.toString()
+    private fun getCurrentTimeStamp(): Timestamp {
+        return Timestamp.now()
     }
 
     fun pushGeneratedQRCodeImage(cylinderId: String, bitmap: Bitmap?, callback: QRGeneratorActivity.OnUploadResult){
