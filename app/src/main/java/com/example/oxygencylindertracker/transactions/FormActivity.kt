@@ -117,12 +117,12 @@ class FormActivity : AppCompatActivity() {
         } else {
             progressBar.visibility = View.VISIBLE
             submitBtn.visibility = View.GONE
-            uploadRecieptImage()
+            uploadReceiptImage()
         }
     }
 
-    fun uploadRecieptImage(){
-        firebaseDBHelper.pushReciptImage(cylinderIdTextView.text.toString(),
+    fun uploadReceiptImage(){
+        firebaseDBHelper.pushReceiptImage(cylinderIdTextView.text.toString(),
             imageBitmap, object: OnUploadResult{
                 override fun onSuccess(url: Task<Uri>) {
                     Toast.makeText(context, "Upload Successful", Toast.LENGTH_SHORT).show()

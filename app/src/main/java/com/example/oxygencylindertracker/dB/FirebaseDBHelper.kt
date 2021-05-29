@@ -42,6 +42,9 @@ class FirebaseDBHelper  {
     private val historyDB = "history"
     private val ownersKey = "owners"
     private val canExitKey = "canExit"
+    private val generatedQRStorageDir = "QR/"
+    private val receiptStorageDir = "Receipt/"
+    private val imageExtension = ".jpg"
 
     fun validateUserLogin (activity: SignInActivity) {
         val userPhoneNumber = Firebase.auth.currentUser?.phoneNumber?.removePrefix("+91") ?: ""
@@ -285,12 +288,9 @@ class FirebaseDBHelper  {
 
     }
 
-
-     fun pushReciptImage(cylinderId: String, bitmap: Bitmap, callback: FormActivity.OnUploadResult){
-        val storageRef = storage.reference
-         //todo check later for better file name
-        val imageref = storageRef.child(cylinderId+getCurrentTimeStamp().seconds+".jpg")
-
+     fun pushReceiptImage(cylinderId: String, bitmap: Bitmap, callback: FormActivity.OnUploadResult){
+        val currTimestamp = getCurrentTimeStamp()
+        val imageref = storageRef.child("$receiptStorageDir$cylinderId$currTimestamp$imageExtension")
         val baos = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
         val data = baos.toByteArray()
@@ -324,7 +324,7 @@ class FirebaseDBHelper  {
         cylinder["createdBy"] = currOwner
         cylinder["isCitizen"] = false
         cylinder["imageUrl"] = uri.toString()
-        val cylCollection = db.collection("cylinders")
+        val cylCollection = db.collection(cylindersDB)
         cylCollection.document(cylId)
             .set(cylinder)
             .addOnSuccessListener {
@@ -335,16 +335,16 @@ class FirebaseDBHelper  {
                 qrGeneratorActivity.showMessage("Error Generating QR. Try again!")
             }
 
-        val userCollection = db.collection("users")
-        userCollection.document(currOwner).update("cylinders", FieldValue.arrayUnion(cylId))
+        val userCollection = db.collection(usersDB)
+        userCollection.document(currOwner).update(cylindersKey, FieldValue.arrayUnion(cylId))
     }
 
-    private fun getCurrentTimeStamp(): Timestamp {
-        return Timestamp.now()
+    private fun getCurrentTimeStamp(): String {
+        return Timestamp.now().seconds.toString()
     }
 
     fun pushGeneratedQRCodeImage(cylinderId: String, bitmap: Bitmap?, callback: QRGeneratorActivity.OnUploadResult){
-        val imageref = storageRef.child("$cylinderId.jpg")
+        val imageref = storageRef.child("$generatedQRStorageDir$cylinderId$imageExtension")
         val baos = ByteArrayOutputStream()
         bitmap?.compress(Bitmap.CompressFormat.JPEG, 100, baos)
         val data = baos.toByteArray()
