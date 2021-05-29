@@ -9,6 +9,7 @@ import com.example.oxygencylindertracker.qrcode.QRGeneratorActivity
 import com.example.oxygencylindertracker.qrcode.QRScannerActivity
 import com.example.oxygencylindertracker.transactions.EntryTransactionActivity
 import com.example.oxygencylindertracker.transactions.FormActivity
+import com.example.oxygencylindertracker.utils.Citizen
 import com.example.oxygencylindertracker.utils.Cylinder
 import com.google.android.gms.tasks.Task
 import com.google.firebase.Timestamp
@@ -37,6 +38,10 @@ class FirebaseDBHelper  {
     private val cylindersDB = "cylinders"
     private val cylindersKey = "cylinders"
     private val nameKey = "name"
+    private val citizensDB = "citizens"
+    private val historyDB = "history"
+    private val ownersKey = "owners"
+    private val canExitKey = "canExit"
 
     fun validateUserLogin (activity: SignInActivity) {
         val userPhoneNumber = Firebase.auth.currentUser?.phoneNumber?.removePrefix("+91") ?: ""
@@ -97,28 +102,37 @@ class FirebaseDBHelper  {
 
     fun checkIfExitTransaction (activity: QRScannerActivity, cylinderId : String) {
         val userPhoneNumber = Firebase.auth.currentUser?.phoneNumber?.removePrefix("+91") ?: ""
-        db.collection(cylindersDB).document(cylinderId).get()
-            .addOnSuccessListener { snapshot ->
-                Log.e("User Validation DOCS", snapshot.exists().toString())
-                when (snapshot.exists()) {
-                    false -> {
-                        activity.showMessage("Invalid Cylinder. Please Try Again")
-                        activity.resumeScanner()
-                    }
-                    true -> {
-                        val ownerPhoneNumber = snapshot.data?.get("current_owner") ?: ""
-                        if (ownerPhoneNumber == userPhoneNumber) {
-                            activity.openExitTransactionScreen(cylinderId)
-                        } else {
-                            activity.openEntryTransactionScreen(cylinderId)
-                        }
+
+        db.runTransaction { transaction ->
+            val userDocument = db.collection(usersDB).document(userPhoneNumber)
+            val userSnapshot = transaction.get(userDocument)
+            val canExit = userSnapshot.getBoolean(canExitKey) ?: false
+
+            val cylinderDocument = db.collection(cylindersDB).document(cylinderId)
+            val cylinderSnapshot = transaction.get(cylinderDocument)
+
+            if (cylinderSnapshot.exists()) {
+                val ownerPhoneNumber = cylinderSnapshot.getString(currentOwnerKey)
+                val isExitCase = (ownerPhoneNumber == userPhoneNumber)
+                if (isExitCase) {
+                    if (!canExit) {
+                        throw Exception("Unauthorized to perform Exit Transaction. Please contact Admins")
                     }
                 }
+                isExitCase
+            } else {
+                throw Exception("Invalid Cylinder. Please Try Again")
             }
-            .addOnFailureListener { exception ->
-                Log.e("TAG", "Error getting documents: ", exception)
-                Firebase.auth.signOut()
+        }.addOnSuccessListener {
+            if (it) {
+                activity.openExitTransactionScreen(cylinderId)
+            } else {
+                activity.openEntryTransactionScreen(cylinderId)
             }
+        }.addOnFailureListener {
+            activity.showMessage(it.message ?: "Unexpected Error. Please try again")
+            activity.resumeScanner()
+        }
     }
 
     fun performEntryTransaction (cylinderId: String, activity: EntryTransactionActivity) {
@@ -135,12 +149,34 @@ class FirebaseDBHelper  {
 
             Log.e("OWNER", currentOwnerId)
 
-            val currentOwnerSnapshot = db.collection(usersDB).document(currentOwnerId)
-            val currentOwnerCylinders = transaction.get(currentOwnerSnapshot).get(cylindersKey) as List<String>
-            val newOwnerSnapshot = db.collection(usersDB).document(userPhoneNumber)
+            val currentOwnerDocument = db.collection(usersDB).document(currentOwnerId)
+            val currentOwnerSnapshot = transaction.get(currentOwnerDocument)
+            val newOwnerDocument = db.collection(usersDB).document(userPhoneNumber)
+            val historyDocument = db.collection(historyDB).document(cylinderId)
+            val historySnapshot = transaction.get(historyDocument)
 
-            transaction.update(currentOwnerSnapshot, cylindersKey, currentOwnerCylinders.filter { it != cylinderId })
-            transaction.update(newOwnerSnapshot, cylindersKey, FieldValue.arrayUnion(cylinderId))
+            if (currentOwnerSnapshot.exists()) {
+                // Handling this in case of taking the cylinder from the user and not citizen
+                val currentOwnerCylinders = currentOwnerSnapshot.get(cylindersKey) as List<String>
+                transaction.update(currentOwnerDocument, cylindersKey, currentOwnerCylinders.filter { it != cylinderId })
+            }
+
+            val cylinderStatePast = hashMapOf(
+                currentOwnerKey to cylinderSnapshot.getString(currentOwnerKey),
+                isCitizenKey to cylinderSnapshot.getBoolean(isCitizenKey),
+                timestampKey to getCurrentTimeStamp()
+            )
+
+            if (historySnapshot.exists()) {
+                transaction.update(historyDocument, ownersKey, FieldValue.arrayUnion(cylinderStatePast))
+            } else {
+                val newHistoryData = hashMapOf(
+                    ownersKey to listOf(cylinderStatePast)
+                )
+                transaction.set(historyDocument, newHistoryData)
+            }
+
+            transaction.update(newOwnerDocument, cylindersKey, FieldValue.arrayUnion(cylinderId))
             transaction.update(cylinderDocument, currentOwnerKey, userPhoneNumber)
             transaction.update(cylinderDocument, timestampKey, getCurrentTimeStamp())
 
@@ -150,6 +186,61 @@ class FirebaseDBHelper  {
         }.addOnFailureListener {
             Log.e("performEntryTransaction", "FAILURE $it")
             activity.onTransactionFailure()
+        }
+    }
+
+    fun performExitTransaction (cylinderId: String, citizen: Citizen, callback: FormActivity.OnExitTransaction) {
+
+        db.runTransaction { transaction ->
+            val cylinderDocument = db.collection(cylindersDB).document(cylinderId)
+            val cylinderSnapshot = transaction.get(cylinderDocument)
+
+            if (!cylinderSnapshot.exists()) {
+                throw Exception("Invalid Cylinder ID")
+            }
+            val currentOwnerId = cylinderSnapshot.getString(currentOwnerKey)
+                ?: throw Exception("Current Owner is Null inside Cylinder")
+
+            val currentOwnerSnapshot = db.collection(usersDB).document(currentOwnerId)
+            val currentOwnerCylinders = transaction.get(currentOwnerSnapshot).get(cylindersKey) as List<String>
+
+            val citizenNewDoc = db.collection(citizensDB).document()
+
+            val citizenData = hashMapOf(
+                "address" to citizen.address,
+                "imageLink" to citizen.imageLink,
+                "name" to citizen.name,
+                "phone" to citizen.phone,
+                "timestamp" to getCurrentTimeStamp()
+            )
+
+            val cylinderStatePast = hashMapOf(
+                currentOwnerKey to cylinderSnapshot.getString(currentOwnerKey),
+                isCitizenKey to cylinderSnapshot.getBoolean(isCitizenKey),
+                timestampKey to getCurrentTimeStamp()
+            )
+
+            val historyDocument = db.collection(historyDB).document(cylinderId)
+            val historySnapshot = transaction.get(historyDocument)
+            if (historySnapshot.exists()) {
+                transaction.update(historyDocument, ownersKey, FieldValue.arrayUnion(cylinderStatePast))
+            } else {
+                val newHistoryData = hashMapOf(
+                    ownersKey to listOf(cylinderStatePast)
+                )
+                transaction.set(historyDocument, newHistoryData)
+            }
+
+            transaction.set(citizenNewDoc, citizenData)
+            transaction.update(cylinderDocument, currentOwnerKey, citizenNewDoc.id)
+            transaction.update(cylinderDocument, timestampKey, getCurrentTimeStamp())
+            transaction.update(cylinderDocument, isCitizenKey, true)
+            transaction.update(currentOwnerSnapshot, cylindersKey, currentOwnerCylinders.filter { it != cylinderId })
+
+        }.addOnSuccessListener {
+            callback.onSuccess()
+        }.addOnFailureListener {
+            callback.onFailure()
         }
     }
 
@@ -188,11 +279,11 @@ class FirebaseDBHelper  {
         var uploadTask = imageref.putBytes(data)
         uploadTask.addOnFailureListener {
             callback.onFaliure()
-        }.addOnSuccessListener { taskSnapshot ->
+        }.addOnSuccessListener {
             callback.onSuccess(imageref.downloadUrl)
-            taskSnapshot
         }
     }
+
     private fun Timestamp.getDateTime(): String {
         val sdf = SimpleDateFormat("MM/dd/yyyy")
         val netDate = Date(this.seconds * 1000)

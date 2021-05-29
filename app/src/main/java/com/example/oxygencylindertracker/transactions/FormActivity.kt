@@ -21,6 +21,8 @@ import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.ContextCompat
 import com.example.oxygencylindertracker.R
 import com.example.oxygencylindertracker.dB.FirebaseDBHelper
+import com.example.oxygencylindertracker.home.HomeActivity
+import com.example.oxygencylindertracker.utils.Citizen
 import com.google.android.gms.tasks.Task
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
@@ -49,6 +51,11 @@ class FormActivity : AppCompatActivity() {
         fun onFaliure()
     }
 
+    interface OnExitTransaction {
+        fun onSuccess()
+        fun onFailure()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
@@ -73,8 +80,7 @@ class FormActivity : AppCompatActivity() {
                 )
 
             } else {
-//                val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-//                startActivityForResult(cameraIntent, CAMERA_REQUEST)
+
                 var values = ContentValues()
                 values.put(MediaStore.Images.Media.TITLE, "New Picture")
                 values.put(MediaStore.Images.Media.DESCRIPTION, "From your Camera")
@@ -109,6 +115,8 @@ class FormActivity : AppCompatActivity() {
         }else if(!android.util.Patterns.PHONE.matcher(contactNumber.editText?.text).matches()){
             contactNumber.requestFocus()
             Toast.makeText(this, "Invalid contact number", Toast.LENGTH_LONG).show()
+        } else {
+            uploadRecieptImage()
         }
 
     }
@@ -118,10 +126,31 @@ class FormActivity : AppCompatActivity() {
             imageBitmap, object: OnUploadResult{
                 override fun onSuccess(url: Task<Uri>) {
                     Toast.makeText(context, "Upload Successful", Toast.LENGTH_SHORT).show()
-                    //todo upload user and later transcations
+                    //todo upload user and later transactions
+
+                    val citizen = Citizen(
+                        address.editText?.text.toString(),
+                        customerName.editText?.text.toString(),
+                        imageLink = url.toString(),
+                        phone = contactNumber.editText?.text.toString()
+                    )
+
+                    firebaseDBHelper.performExitTransaction(cylinderId, citizen, object : OnExitTransaction {
+                        override fun onSuccess() {
+                            Toast.makeText(context, "Success! Cylinder handed over to Citizen", Toast.LENGTH_SHORT).show()
+                            startActivity(Intent(context, HomeActivity::class.java))
+                            finish()
+                        }
+
+                        override fun onFailure() {
+                            Toast.makeText(context, "Unexpected Error. Please Try Again.", Toast.LENGTH_SHORT).show()
+                        }
+
+                    })
+
                 }
                 override fun onFaliure() {
-                    Toast.makeText(context, "Upload failed", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Upload failed. Please try again", Toast.LENGTH_SHORT).show()
                 }
 
             })

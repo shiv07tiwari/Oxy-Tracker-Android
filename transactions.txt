@@ -14,3 +14,17 @@ Create Cylinder QR
     - owner ke cylinders se remove this id
     - scanner ke cylinders me add this Id
     -  update cylinders ka current_owner and updatedAt
+
+- Exit Transaction
+    - citizen me add karna hai document naya wala
+    - cylinder ke owner ko citizenId karna hai
+    - cylinder ka isCitizen true karna hai
+    - cylinder ka timestamp update karna hai
+    - existing se hatana hai cylinder
+
+
+- History Transactions
+    - Entry transaction
+            - previousOwner ka data history me push
+    - Exit transaction
+            - previousState save kardo
