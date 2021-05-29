@@ -11,10 +11,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.View
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat.requestPermissions
@@ -34,6 +31,7 @@ class FormActivity : AppCompatActivity() {
     private lateinit var submitBtn: Button
     private lateinit var customerName: TextInputLayout
     private lateinit var contactNumber: TextInputLayout
+    private lateinit var progressBar: ProgressBar
     private lateinit var address: TextInputLayout
     private lateinit var picText: TextView
     private lateinit var cylinderIdTextView: TextView
@@ -66,6 +64,8 @@ class FormActivity : AppCompatActivity() {
         submitBtn = findViewById(R.id.submitBtn);
         customerName = findViewById(R.id.customerName)
         contactNumber= findViewById(R.id.contactNumber)
+        progressBar = findViewById(R.id.exitProgressBar)
+        progressBar.visibility = View.GONE
         address = findViewById(R.id.address)
         picText = findViewById(R.id.textView5)
         cylinderIdTextView = findViewById(R.id.cylinder_id)
@@ -100,7 +100,6 @@ class FormActivity : AppCompatActivity() {
     }
 
     private fun checkInputs(){
-        uploadRecieptImage()
         if(customerName.editText?.text !=null && customerName.editText?.text!!.isEmpty()!!){
             customerName.requestFocus()
             Toast.makeText(this, "This field cannot remain empty", Toast.LENGTH_LONG).show()
@@ -116,9 +115,10 @@ class FormActivity : AppCompatActivity() {
             contactNumber.requestFocus()
             Toast.makeText(this, "Invalid contact number", Toast.LENGTH_LONG).show()
         } else {
+            progressBar.visibility = View.VISIBLE
+            submitBtn.visibility = View.GONE
             uploadRecieptImage()
         }
-
     }
 
     fun uploadRecieptImage(){
@@ -143,6 +143,8 @@ class FormActivity : AppCompatActivity() {
                         }
 
                         override fun onFailure() {
+                            progressBar.visibility = View.GONE
+                            submitBtn.visibility = View.VISIBLE
                             Toast.makeText(context, "Unexpected Error. Please Try Again.", Toast.LENGTH_SHORT).show()
                         }
 
@@ -150,6 +152,8 @@ class FormActivity : AppCompatActivity() {
 
                 }
                 override fun onFaliure() {
+                    progressBar.visibility = View.GONE
+                    submitBtn.visibility = View.VISIBLE
                     Toast.makeText(context, "Upload failed. Please try again", Toast.LENGTH_SHORT).show()
                 }
 
@@ -183,6 +187,7 @@ class FormActivity : AppCompatActivity() {
                     this.contentResolver, imageUri
                 )
                 imageView.setImageBitmap(imageBitmap)
+                imageSet = true
                 picText.visibility = View.GONE
             } catch (e: Exception) {
                 e.printStackTrace()
