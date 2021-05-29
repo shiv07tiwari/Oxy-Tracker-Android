@@ -100,7 +100,6 @@ class FormActivity : AppCompatActivity() {
     }
 
     private fun checkInputs(){
-        uploadReceiptImage()
         if(customerName.editText?.text !=null && customerName.editText?.text!!.isEmpty()!!){
             customerName.requestFocus()
             Toast.makeText(this, "This field cannot remain empty", Toast.LENGTH_LONG).show()
