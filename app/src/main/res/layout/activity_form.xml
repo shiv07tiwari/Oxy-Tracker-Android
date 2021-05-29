@@ -8,7 +8,9 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        tools:layout_editor_absoluteX="-53dp"
+        tools:layout_editor_absoluteY="-16dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -18,14 +20,13 @@
                 android:id="@+id/cylinder_id"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="32dp"
-                android:layout_marginLeft="32dp"
-                android:layout_marginTop="24dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginLeft="16dp"
                 android:text="A-28052021-123456"
                 android:textColor="@color/black"
                 android:textSize="24sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView" />
+                app:layout_constraintStart_toEndOf="@+id/textView"
+                app:layout_constraintTop_toTopOf="@+id/textView" />
 
             <TextView
                 android:id="@+id/textView"
@@ -33,11 +34,11 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="32dp"
                 android:layout_marginLeft="32dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="32dp"
                 android:text="Cylinder ID"
-                android:textSize="36sp"
+                android:textSize="24sp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/imageView" />
+                app:layout_constraintTop_toBottomOf="@+id/textView2" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/customerName"
@@ -46,7 +47,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="32dp"
                 android:layout_marginLeft="32dp"
-                android:layout_marginTop="48dp"
+                android:layout_marginTop="32dp"
                 android:layout_marginEnd="32dp"
                 android:layout_marginRight="32dp"
                 android:ems="10"
@@ -120,12 +121,12 @@
                 android:layout_marginTop="24dp"
                 android:layout_marginEnd="32dp"
                 android:layout_marginRight="32dp"
+                android:clickable="true"
+                android:scaleType="fitCenter"
+                android:src="@drawable/camera"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/address"
-                android:src="@drawable/camera"
-                android:scaleType="fitCenter"
-                android:clickable="true" />
+                app:layout_constraintTop_toBottomOf="@+id/address" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/submitBtn"
@@ -138,8 +139,8 @@
                 android:layout_marginRight="32dp"
                 android:text="Submit"
 
-                android:textColor="@color/colorPrimary"
-                app:backgroundTint="@color/lightpink"
+                android:textColor="#FFFFFF"
+                app:backgroundTint="@color/colorPrimary"
                 app:cornerRadius="15dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -164,9 +165,9 @@
                 android:layout_width="105dp"
                 android:layout_height="86dp"
                 android:height="-2dp"
+                android:gravity="center_horizontal"
                 android:text="Click to Take Picture"
                 android:textAlignment="center"
-                android:gravity="center_horizontal"
                 android:textSize="20sp"
                 app:layout_constraintBottom_toBottomOf="@+id/reciptImage"
                 app:layout_constraintEnd_toEndOf="@+id/reciptImage"
@@ -185,6 +186,17 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/appname"
                 tools:ignore="VectorDrawableCompat" />
+
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:text="Patient Handover"
+                android:textSize="32sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/imageView" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
