@@ -141,7 +141,6 @@ class FirebaseDBHelper  {
     fun performEntryTransaction (cylinderId: String, activity: EntryTransactionActivity) {
         val userPhoneNumber = Firebase.auth.currentUser?.phoneNumber?.removePrefix("+91") ?: ""
         db.runTransaction {transaction ->
-            var isCitizen = true
             val cylinderDocument = db.collection(cylindersDB).document(cylinderId)
             val cylinderSnapshot = transaction.get(cylinderDocument)
             if (!cylinderSnapshot.exists()) {
@@ -160,7 +159,6 @@ class FirebaseDBHelper  {
 
             if (currentOwnerSnapshot.exists()) {
                 // Handling this in case of taking the cylinder from the user and not citizen
-                isCitizen = false
                 val currentOwnerCylinders = currentOwnerSnapshot.get(cylindersKey) as List<String>
                 transaction.update(currentOwnerDocument, cylindersKey, currentOwnerCylinders.filter { it != cylinderId })
             }
@@ -182,7 +180,7 @@ class FirebaseDBHelper  {
 
             transaction.update(newOwnerDocument, cylindersKey, FieldValue.arrayUnion(cylinderId))
             transaction.update(cylinderDocument, currentOwnerKey, userPhoneNumber)
-            transaction.update(cylinderDocument, isCitizenKey, isCitizen)
+            transaction.update(cylinderDocument, isCitizenKey, false)
             transaction.update(cylinderDocument, timestampKey, getCurrentTimeStamp())
 
         }.addOnSuccessListener {
