@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Button
+import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
@@ -33,8 +34,8 @@ class SignInActivity : AppCompatActivity() {
     lateinit var mProgressBar : ProgressBar
     lateinit var getOTPButton : Button
     lateinit var logInButton : Button
-    lateinit var phoneNumberEditText : TextInputLayout
-    lateinit var OTPEditText : TextInputLayout
+    lateinit var phoneNumberEditText : EditText
+    lateinit var OTPEditText : EditText
     lateinit var titleText : TextView
     lateinit var subText : TextView
     private var isLoginInitiated = false
@@ -46,7 +47,7 @@ class SignInActivity : AppCompatActivity() {
         }
 
         override fun onVerificationFailed(e: FirebaseException) {
-            Log.e("AUTH_MESSAGE", "onVerificationFailed", e)
+            Log.e("AUTH_MESSAGE", "onVerificationFailed"+ e.message.toString())
 
             when (e) {
                 is FirebaseAuthInvalidCredentialsException -> { }
@@ -71,7 +72,7 @@ class SignInActivity : AppCompatActivity() {
             phoneNumberEditText.visibility = View.GONE
 
             logInButton.setOnClickListener {
-                val otp = OTPEditText.editText?.text.toString()
+                val otp = OTPEditText.text.toString()
                 if (otp.length != 6) {
                     showMessage("Invalid OTP")
                 } else {
@@ -92,8 +93,10 @@ class SignInActivity : AppCompatActivity() {
         firebaseDBHelper = FirebaseDBHelper()
         localStorageHelper = LocalStorageHelper()
 
-        phoneNumberEditText = findViewById(R.id.authPhoneNumberText)
+        phoneNumberEditText = findViewById<EditText>(R.id.authPhoneNumberText)
+
         OTPEditText = findViewById(R.id.authOTPText)
+
         getOTPButton = findViewById(R.id.authGetOTPButton)
         logInButton = findViewById(R.id.authLoginButton)
         subText = findViewById(R.id.subtext)
@@ -105,7 +108,7 @@ class SignInActivity : AppCompatActivity() {
         OTPEditText.visibility = View.GONE
 
         getOTPButton.setOnClickListener {
-            authenticateUser(phoneNumberEditText.editText?.text.toString())
+            authenticateUser(phoneNumberEditText.text.toString())
         }
     }
 
