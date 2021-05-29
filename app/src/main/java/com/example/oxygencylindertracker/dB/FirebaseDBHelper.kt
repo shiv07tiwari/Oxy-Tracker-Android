@@ -187,7 +187,6 @@ class FirebaseDBHelper  {
             callback.onFaliure()
         }.addOnSuccessListener { taskSnapshot ->
             callback.onSuccess(imageref.downloadUrl)
-            taskSnapshot
         }
 
 

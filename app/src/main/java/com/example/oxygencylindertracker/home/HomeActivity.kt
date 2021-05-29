@@ -2,22 +2,23 @@ package com.example.oxygencylindertracker.home
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatAutoCompleteTextView
+import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.oxygencylindertracker.R
 import com.example.oxygencylindertracker.dB.FirebaseDBHelper
-import com.example.oxygencylindertracker.transactions.FormActivity
+import com.example.oxygencylindertracker.dB.LocalStorageHelper
 import com.example.oxygencylindertracker.qrcode.QRGeneratorActivity
 import com.example.oxygencylindertracker.qrcode.QRScannerActivity
 import com.example.oxygencylindertracker.utils.Cylinder
-import com.example.oxygencylindertracker.dB.LocalStorageHelper
 
 
 class HomeActivity : AppCompatActivity() {
@@ -35,6 +36,7 @@ class HomeActivity : AppCompatActivity() {
     lateinit var scanQRButton : Button
     var cylinders : List<Cylinder> = listOf()
     lateinit var localStorageHelper: LocalStorageHelper
+    lateinit var sortBy: AppCompatAutoCompleteTextView
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,6 +54,7 @@ class HomeActivity : AppCompatActivity() {
         searchEditText = findViewById(R.id.editTextSearch)
         filtersLL = findViewById(R.id.filtersLL)
         scanQRButton = findViewById(R.id.homeScanQRBtn)
+        sortBy = findViewById(R.id.sortby)
 
         userTextView.text = "Welcome ${localStorageHelper.getUserName(this)}"
 
@@ -64,6 +67,49 @@ class HomeActivity : AppCompatActivity() {
         scanQRButton.setOnClickListener {
             startActivity(Intent(this, QRScannerActivity::class.java))
         }
+
+        val customerList= mutableListOf<String>("ID","Date")
+
+        val adapter: ArrayAdapter<String> = ArrayAdapter<String>(
+            this,
+            android.R.layout.simple_spinner_item,
+            customerList)
+
+
+        sortBy.setAdapter(adapter)
+
+        sortBy.addTextChangedListener(object : TextWatcher {
+            override fun onTextChanged(
+                s: CharSequence,
+                start: Int,
+                before: Int,
+                count: Int
+            ) {
+                if(sortBy.text.toString().equals("Date")){
+                    mAdapter.filterList(cylinders.sortedBy { it.timestamp })
+                }else{
+                    mAdapter.filterList(cylinders.sortedBy { it.id })
+                }
+            }
+
+            override fun beforeTextChanged(
+                s: CharSequence,
+                start: Int,
+                count: Int,
+                after: Int
+            ) {
+            }
+
+            override fun afterTextChanged(s: Editable) {
+
+            }
+        })
+
+//        findViewById<View>(R.id.submitButton).setOnClickListener {
+//
+//            Toast.makeText(this@MainActivity, customerAutoTV.getText(), Toast.LENGTH_SHORT)
+//                .show()
+//        }
     }
 
     private fun fetchCylindersData() {
@@ -110,22 +156,22 @@ class HomeActivity : AppCompatActivity() {
         mAdapter.filterList(this.cylinders.filter { it.id.contains(text, true) })
     }
 
-    fun onRadioButtonClicked(view: View) {
-        if (view is RadioButton) {
-            val checked = view.isChecked
-
-            when (view.getId()) {
-                R.id.radioId ->
-                    if (checked) {
-                        mAdapter.filterList(this.cylinders.sortedBy { it.id })
-                    }
-                R.id.radioDate ->
-                    if (checked) {
-                        mAdapter.filterList(this.cylinders.sortedBy { it.timestamp })
-                    }
-            }
-        }
-    }
+//    fun onRadioButtonClicked(view: View) {
+//        if (view is RadioButton) {
+//            val checked = view.isChecked
+//
+//            when (view.getId()) {
+//                R.id.radioId ->
+//                    if (checked) {
+//                        mAdapter.filterList(this.cylinders.sortedBy { it.id })
+//                    }
+//                R.id.radioDate ->
+//                    if (checked) {
+//                        mAdapter.filterList(this.cylinders.sortedBy { it.timestamp })
+//                    }
+//            }
+//        }
+//    }
 
     fun displayEmptyList () {}
 
