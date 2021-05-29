@@ -46,7 +46,7 @@ class QRGeneratorActivity : AppCompatActivity() {
     var qrId: String = ""
 
     interface OnUploadResult{
-        fun onSuccess(url: Task<Uri>)
+        fun onSuccess(path: String)
         fun onFaliure()
     }
 
@@ -188,8 +188,8 @@ class QRGeneratorActivity : AppCompatActivity() {
         val context = this
         firebaseDBHelper.pushGeneratedQRCodeImage(qrId,
             bitmap, object: OnUploadResult {
-                override fun onSuccess(url: Task<Uri>) {
-                    firebaseDBHelper.addCylinderToDatabase(context, currDate, qrId, url)
+                override fun onSuccess(path : String) {
+                    firebaseDBHelper.addCylinderToDatabase(context, currDate, qrId, path)
                 }
                 override fun onFaliure() {
                     showMessage("Some error occurred. Please try again")

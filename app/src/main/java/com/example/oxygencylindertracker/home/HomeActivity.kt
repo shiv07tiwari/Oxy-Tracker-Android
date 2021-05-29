@@ -77,42 +77,6 @@ class HomeActivity : AppCompatActivity() {
             android.R.layout.simple_spinner_item,
             customerList)
 
-
-//        sortBy.setAdapter(adapter)
-//
-//        sortBy.addTextChangedListener(object : TextWatcher {
-//            override fun onTextChanged(
-//                s: CharSequence,
-//                start: Int,
-//                before: Int,
-//                count: Int
-//            ) {
-//                if(sortBy.text.toString().equals("Date")){
-//                    mAdapter.filterList(cylinders.sortedBy { it.timestamp })
-//                }else{
-//                    mAdapter.filterList(cylinders.sortedBy { it.id })
-//                }
-//            }
-//
-//            override fun beforeTextChanged(
-//                s: CharSequence,
-//                start: Int,
-//                count: Int,
-//                after: Int
-//            ) {
-//            }
-//
-//            override fun afterTextChanged(s: Editable) {
-//
-//            }
-//        })
-
-//        findViewById<View>(R.id.submitButton).setOnClickListener {
-//
-//            Toast.makeText(this@MainActivity, customerAutoTV.getText(), Toast.LENGTH_SHORT)
-//                .show()
-//        }
-
     }
 
     fun showPopupSort(v: View) {

@@ -42,6 +42,9 @@ class FirebaseDBHelper  {
     private val historyDB = "history"
     private val ownersKey = "owners"
     private val canExitKey = "canExit"
+    private val generatedQRStorageDir = "QR/"
+    private val receiptStorageDir = "Receipt/"
+    private val imageExtension = ".jpg"
 
     fun validateUserLogin (activity: SignInActivity) {
         val userPhoneNumber = Firebase.auth.currentUser?.phoneNumber?.removePrefix("+91") ?: ""
@@ -140,7 +143,6 @@ class FirebaseDBHelper  {
     fun performEntryTransaction (cylinderId: String, activity: EntryTransactionActivity) {
         val userPhoneNumber = Firebase.auth.currentUser?.phoneNumber?.removePrefix("+91") ?: ""
         db.runTransaction {transaction ->
-            var isCitizen = true
             val cylinderDocument = db.collection(cylindersDB).document(cylinderId)
             val cylinderSnapshot = transaction.get(cylinderDocument)
             if (!cylinderSnapshot.exists()) {
@@ -159,7 +161,6 @@ class FirebaseDBHelper  {
 
             if (currentOwnerSnapshot.exists()) {
                 // Handling this in case of taking the cylinder from the user and not citizen
-                isCitizen = false
                 val currentOwnerCylinders = currentOwnerSnapshot.get(cylindersKey) as List<String>
                 transaction.update(currentOwnerDocument, cylindersKey, currentOwnerCylinders.filter { it != cylinderId })
             }
@@ -181,7 +182,7 @@ class FirebaseDBHelper  {
 
             transaction.update(newOwnerDocument, cylindersKey, FieldValue.arrayUnion(cylinderId))
             transaction.update(cylinderDocument, currentOwnerKey, userPhoneNumber)
-            transaction.update(cylinderDocument, isCitizenKey, isCitizen)
+            transaction.update(cylinderDocument, isCitizenKey, false)
             transaction.update(cylinderDocument, timestampKey, getCurrentTimeStamp())
 
         }.addOnSuccessListener {
@@ -287,25 +288,23 @@ class FirebaseDBHelper  {
 
     }
 
-
-     fun pushReciptImage(cylinderId: String, bitmap: Bitmap, callback: FormActivity.OnUploadResult){
-        val storageRef = storage.reference
-         //todo check later for better file name
-        val imageref = storageRef.child(cylinderId+getCurrentTimeStamp().seconds+".jpg")
-
+     fun pushReceiptImage(cylinderId: String, bitmap: Bitmap, callback: FormActivity.OnUploadResult){
+        val currTimestamp = getCurrentTimeStamp().seconds
+        val imageref = storageRef.child("$receiptStorageDir$cylinderId$currTimestamp$imageExtension")
         val baos = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos)
         val data = baos.toByteArray()
 
         var uploadTask = imageref.putBytes(data)
         uploadTask.addOnFailureListener {
-            Log.e("IMAGE UPLOAD", it.message.toString())
+            Log.e("Error", it.message.toString())
             callback.onFaliure()
 
         }.addOnSuccessListener {
             imageref.downloadUrl.addOnSuccessListener {
+                val imagePath = "https://firebasestorage.googleapis.com${it.encodedPath}"
                 Log.e("URL", it.encodedPath.toString())
-                callback.onSuccess(imageref.downloadUrl)
+                callback.onSuccess(imagePath)
             }.addOnFailureListener {
                 Log.e("IMAGE URL", it.message.toString())
                 callback.onFaliure()
@@ -320,15 +319,15 @@ class FirebaseDBHelper  {
         return sdf.format(netDate)
     }
 
-    fun addCylinderToDatabase(qrGeneratorActivity: QRGeneratorActivity, timestamp: Date, cylId: String, uri: Task<Uri>) {
+    fun addCylinderToDatabase(qrGeneratorActivity: QRGeneratorActivity, timestamp: Date, cylId: String, uri: String) {
         val cylinder = HashMap<String, Any>()
         cylinder["timestamp"] = timestamp
         val currOwner = Firebase.auth.currentUser?.phoneNumber?.removePrefix("+91") ?: return
         cylinder["current_owner"] = currOwner
         cylinder["createdBy"] = currOwner
         cylinder["isCitizen"] = false
-        cylinder["imageUrl"] = uri.toString()
-        val cylCollection = db.collection("cylinders")
+        cylinder["imageUrl"] = uri
+        val cylCollection = db.collection(cylindersDB)
         cylCollection.document(cylId)
             .set(cylinder)
             .addOnSuccessListener {
@@ -339,8 +338,8 @@ class FirebaseDBHelper  {
                 qrGeneratorActivity.showMessage("Error Generating QR. Try again!")
             }
 
-        val userCollection = db.collection("users")
-        userCollection.document(currOwner).update("cylinders", FieldValue.arrayUnion(cylId))
+        val userCollection = db.collection(usersDB)
+        userCollection.document(currOwner).update(cylindersKey, FieldValue.arrayUnion(cylId))
     }
 
     private fun getCurrentTimeStamp(): Timestamp {
@@ -348,17 +347,23 @@ class FirebaseDBHelper  {
     }
 
     fun pushGeneratedQRCodeImage(cylinderId: String, bitmap: Bitmap?, callback: QRGeneratorActivity.OnUploadResult){
-        val imageref = storageRef.child("$cylinderId.jpg")
+        val imageref = storageRef.child("$generatedQRStorageDir$cylinderId$imageExtension")
         val baos = ByteArrayOutputStream()
-        bitmap?.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+        bitmap?.compress(Bitmap.CompressFormat.JPEG, 50, baos)
         val data = baos.toByteArray()
 
         val uploadTask = imageref.putBytes(data)
         uploadTask.addOnFailureListener {
             callback.onFaliure()
-        }.addOnSuccessListener { taskSnapshot ->
-            callback.onSuccess(imageref.downloadUrl)
-            taskSnapshot
+        }.addOnSuccessListener {
+            imageref.downloadUrl.addOnSuccessListener {
+                val imagePath = "https://firebasestorage.googleapis.com${it.encodedPath}"
+                Log.e("URL", it.encodedPath.toString())
+                callback.onSuccess(imagePath)
+            }.addOnFailureListener {
+                Log.e("IMAGE URL", it.message.toString())
+                callback.onFaliure()
+            }
         }
     }
 }
