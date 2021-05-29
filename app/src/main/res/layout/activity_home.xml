@@ -8,28 +8,16 @@
     tools:context=".home.HomeActivity">
 
     <TextView
-        android:id="@+id/homeUserName"
-        android:layout_width="137dp"
-        android:layout_height="21dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="8dp"
-        android:text="Welcome Shivansh"
-        android:textSize="16sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView" />
-
-    <TextView
         android:id="@+id/homeCylinderText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="48dp"
-        android:text="10 Cylinder(s) Owned"
+        android:layout_marginTop="20dp"
+        android:text="Welcome Shivansh, you own 10 Cylinder(s)"
         android:textColor="@color/colorPrimary"
         android:textSize="18sp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/homeUserName" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView" />
 
     <EditText
         android:id="@+id/editTextSearch"
