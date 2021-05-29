@@ -28,7 +28,6 @@ class HomeActivity : AppCompatActivity() {
 
     lateinit var mRecyclerView: RecyclerView
     private lateinit var totalCylindersText : TextView
-    lateinit var userTextView : TextView
     lateinit var  mAdapter: CylinderAdapter
     lateinit var mLayoutManager: RecyclerView.LayoutManager
     lateinit var mProgressBar : ProgressBar
@@ -50,7 +49,7 @@ class HomeActivity : AppCompatActivity() {
 
         mProgressBar = findViewById(R.id.homeProgressBar)
         totalCylindersText = findViewById(R.id.homeCylinderText)
-        userTextView = findViewById(R.id.homeUserName)
+
         mRecyclerView = findViewById(R.id.homeCylinderRV)
 
         searchEditText = findViewById(R.id.editTextSearch)
@@ -58,7 +57,6 @@ class HomeActivity : AppCompatActivity() {
         scanQRButton = findViewById(R.id.homeScanQRBtn)
 //        sortBy = findViewById(R.id.sortby)
 
-        userTextView.text = "Welcome ${localStorageHelper.getUserName(this)}"
 
         mLayoutManager = LinearLayoutManager(this)
         mRecyclerView.layoutManager = mLayoutManager
@@ -137,7 +135,7 @@ class HomeActivity : AppCompatActivity() {
     fun displayCylinderList (cylinders: List<Cylinder>) {
 
         this.cylinders = cylinders
-        totalCylindersText.text = "${cylinders.size} Cylinder(s) Owned"
+        totalCylindersText.text = "Welcome ${localStorageHelper.getUserName(this)}! You own ${cylinders.size} Cylinder(s)"
 
         mAdapter = CylinderAdapter(cylinders)
         mRecyclerView.adapter = mAdapter

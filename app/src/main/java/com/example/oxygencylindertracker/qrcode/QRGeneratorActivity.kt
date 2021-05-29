@@ -98,6 +98,10 @@ class QRGeneratorActivity : AppCompatActivity() {
         val currDate = Date()
         val currentDate = sdf.format(currDate).toString()
         val cylType = cylTypeEditText.text.toString()
+        if (cylType != "B" || cylType != "D") {
+            showMessage("Invalid Cylinder Type. Please Add B / D")
+            return
+        }
         qrId = cylType + "-" + currentDate
         if (TextUtils.isEmpty(cylType)) {
             showMessage("Enter Cylinder Id to generate QR Code")

@@ -8,12 +8,23 @@
     tools:context=".qrcode.QRGeneratorActivity">
 
     <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="229dp"
+        android:layout_height="56dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        app:srcCompat="@drawable/appname"
+        tools:ignore="VectorDrawableCompat" />
+
+    <ImageView
         android:layout_width="300dp"
         android:layout_height="300dp"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="30dp"
         android:contentDescription="@string/qr_code"
         android:id="@+id/qr_code"
+        android:layout_below="@+id/imageView"
         android:src="@drawable/placeholder">
     </ImageView>
 
