@@ -12,11 +12,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.oxygencylindertracker.R
+import com.example.oxygencylindertracker.auth.SignInActivity
 import com.example.oxygencylindertracker.dB.FirebaseDBHelper
 import com.example.oxygencylindertracker.qrcode.QRGeneratorActivity
 import com.example.oxygencylindertracker.qrcode.QRScannerActivity
 import com.example.oxygencylindertracker.utils.Cylinder
 import com.example.oxygencylindertracker.dB.LocalStorageHelper
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 
 
 class HomeActivity : AppCompatActivity() {
@@ -28,7 +31,6 @@ class HomeActivity : AppCompatActivity() {
     lateinit var mLayoutManager: RecyclerView.LayoutManager
     lateinit var mProgressBar : ProgressBar
     lateinit var firebaseDBHelper : FirebaseDBHelper
-
     lateinit var searchEditText : EditText
     lateinit var filtersLL : LinearLayout
     lateinit var scanQRButton : Button
@@ -139,8 +141,13 @@ class HomeActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.button_item -> {
+            R.id.generate_qr_button -> {
                 val intent = Intent(this, QRGeneratorActivity::class.java)
+                startActivity(intent)
+            }
+            R.id.logout_button -> {
+                Firebase.auth.signOut()
+                val intent = Intent(this, SignInActivity::class.java)
                 startActivity(intent)
             }
             else -> super.onOptionsItemSelected(item)

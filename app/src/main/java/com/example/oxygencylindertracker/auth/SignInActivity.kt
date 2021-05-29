@@ -94,6 +94,7 @@ class SignInActivity : AppCompatActivity() {
         localStorageHelper.savePhoneNumber(phoneNumber, this)
         localStorageHelper.saveUserName(userName, this)
         startActivity(intent)
+        finish()
     }
 
     fun signInWithPhoneAuthCredentials(phoneAuthCredentials : PhoneAuthCredential) {

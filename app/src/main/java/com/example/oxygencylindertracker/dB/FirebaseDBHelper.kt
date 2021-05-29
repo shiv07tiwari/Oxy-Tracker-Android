@@ -141,7 +141,7 @@ class FirebaseDBHelper  {
     fun performEntryTransaction (cylinderId: String, activity: EntryTransactionActivity) {
         val userPhoneNumber = Firebase.auth.currentUser?.phoneNumber?.removePrefix("+91") ?: ""
         db.runTransaction {transaction ->
-
+            var isCitizen = true
             val cylinderDocument = db.collection(cylindersDB).document(cylinderId)
             val cylinderSnapshot = transaction.get(cylinderDocument)
             if (!cylinderSnapshot.exists()) {
@@ -160,6 +160,7 @@ class FirebaseDBHelper  {
 
             if (currentOwnerSnapshot.exists()) {
                 // Handling this in case of taking the cylinder from the user and not citizen
+                isCitizen = false
                 val currentOwnerCylinders = currentOwnerSnapshot.get(cylindersKey) as List<String>
                 transaction.update(currentOwnerDocument, cylindersKey, currentOwnerCylinders.filter { it != cylinderId })
             }
@@ -167,7 +168,7 @@ class FirebaseDBHelper  {
             val cylinderStatePast = hashMapOf(
                 currentOwnerKey to cylinderSnapshot.getString(currentOwnerKey),
                 isCitizenKey to cylinderSnapshot.getBoolean(isCitizenKey),
-                timestampKey to getCurrentTimeStamp()
+                timestampKey to cylinderSnapshot.get(timestampKey)
             )
 
             if (historySnapshot.exists()) {
@@ -181,6 +182,7 @@ class FirebaseDBHelper  {
 
             transaction.update(newOwnerDocument, cylindersKey, FieldValue.arrayUnion(cylinderId))
             transaction.update(cylinderDocument, currentOwnerKey, userPhoneNumber)
+            transaction.update(cylinderDocument, isCitizenKey, isCitizen)
             transaction.update(cylinderDocument, timestampKey, getCurrentTimeStamp())
 
         }.addOnSuccessListener {
@@ -220,7 +222,7 @@ class FirebaseDBHelper  {
             val cylinderStatePast = hashMapOf(
                 currentOwnerKey to cylinderSnapshot.getString(currentOwnerKey),
                 isCitizenKey to cylinderSnapshot.getBoolean(isCitizenKey),
-                timestampKey to getCurrentTimeStamp()
+                timestampKey to cylinderSnapshot.get(timestampKey)
             )
 
             val historyDocument = db.collection(historyDB).document(cylinderId)
@@ -255,11 +257,25 @@ class FirebaseDBHelper  {
             if (!cylinderSnapshot.exists()) {
                 throw Exception("Invalid Cylinder ID")
             }
+
+            val isCitizen = cylinderSnapshot.getBoolean(isCitizenKey)
             val currentOwnerId = cylinderSnapshot.getString(currentOwnerKey)
                 ?: throw Exception("Current Owner is Null inside Cylinder")
-            val currentOwnerSnapshot = db.collection(usersDB).document(currentOwnerId)
-            transaction.get(currentOwnerSnapshot).get(nameKey) as String
 
+            when (isCitizen) {
+                false -> {
+                    val currentOwnerSnapshot = db.collection(usersDB).document(currentOwnerId)
+                    transaction.get(currentOwnerSnapshot).get(nameKey) as String
+                }
+                true -> {
+                    val currentOwnerSnapshot = db.collection(citizensDB).document(currentOwnerId)
+                    val name = transaction.get(currentOwnerSnapshot).get(nameKey) as String
+                    "Citizen : $name"
+                }
+                else -> {
+                    throw Exception("UnExpected Error. Please try again")
+                }
+            }
         }.addOnSuccessListener {
             if (it.isNullOrEmpty()) {
                 activity.showUserErrorMessage("Unexpected Error. Please try again")
@@ -275,16 +291,22 @@ class FirebaseDBHelper  {
      fun pushReceiptImage(cylinderId: String, bitmap: Bitmap, callback: FormActivity.OnUploadResult){
         val currTimestamp = getCurrentTimeStamp()
         val imageref = storageRef.child("$receiptStorageDir$cylinderId$currTimestamp$imageExtension")
-
         val baos = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
         val data = baos.toByteArray()
 
         var uploadTask = imageref.putBytes(data)
         uploadTask.addOnFailureListener {
+            Log.e("IMAGE UPLOAD", it.message.toString())
             callback.onFaliure()
         }.addOnSuccessListener {
-            callback.onSuccess(imageref.downloadUrl)
+            imageref.downloadUrl.addOnSuccessListener {
+                Log.e("URL", it.encodedPath.toString())
+                callback.onSuccess(imageref.downloadUrl)
+            }.addOnFailureListener {
+                Log.e("IMAGE URL", it.message.toString())
+                callback.onFaliure()
+            }
         }
     }
 
