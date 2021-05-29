@@ -290,7 +290,7 @@ class FirebaseDBHelper  {
         val currTimestamp = getCurrentTimeStamp().seconds
         val imageref = storageRef.child("$receiptStorageDir$cylinderId$currTimestamp$imageExtension")
         val baos = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos)
         val data = baos.toByteArray()
 
         var uploadTask = imageref.putBytes(data)
@@ -345,7 +345,7 @@ class FirebaseDBHelper  {
     fun pushGeneratedQRCodeImage(cylinderId: String, bitmap: Bitmap?, callback: QRGeneratorActivity.OnUploadResult){
         val imageref = storageRef.child("$generatedQRStorageDir$cylinderId$imageExtension")
         val baos = ByteArrayOutputStream()
-        bitmap?.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+        bitmap?.compress(Bitmap.CompressFormat.JPEG, 50, baos)
         val data = baos.toByteArray()
 
         val uploadTask = imageref.putBytes(data)
