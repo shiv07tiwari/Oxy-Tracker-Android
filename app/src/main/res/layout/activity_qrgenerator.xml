@@ -111,5 +111,19 @@
             android:layout_margin="5dp"
             android:text="@string/share_qr"
             android:textSize="18sp"/>
+        <Button
+            android:id="@+id/new_qr_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:text="@string/gen_new_qr"
+            android:textSize="18sp"/>
     </LinearLayout>
+
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:id="@+id/qrGeneratorProgressBar"
+        android:layout_height="wrap_content" />
 </RelativeLayout>

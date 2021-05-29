@@ -1,6 +1,7 @@
 package com.example.oxygencylindertracker.dB
 
 import android.graphics.Bitmap
+import android.net.Uri
 import android.util.Log
 import com.example.oxygencylindertracker.auth.SignInActivity
 import com.example.oxygencylindertracker.home.HomeActivity
@@ -10,6 +11,7 @@ import com.example.oxygencylindertracker.transactions.EntryTransactionActivity
 import com.example.oxygencylindertracker.transactions.FormActivity
 import com.example.oxygencylindertracker.utils.Citizen
 import com.example.oxygencylindertracker.utils.Cylinder
+import com.google.android.gms.tasks.Task
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FieldValue
@@ -26,6 +28,7 @@ class FirebaseDBHelper  {
     companion object {
         private val db = Firebase.firestore
         private val storage = Firebase.storage("gs://o2-tracker.appspot.com")
+        private val storageRef = storage.reference
     }
 
     private val isCitizenKey = "isCitizen"
@@ -266,9 +269,7 @@ class FirebaseDBHelper  {
 
     }
 
-     fun pushReciptImage(cylinderId: String, bitmap: Bitmap, callback: FormActivity.OnUploadResult){
-        val storageRef = storage.reference
-         //todo check later for better file name
+     fun pushRecieptImage(cylinderId: String, bitmap: Bitmap, callback: FormActivity.OnUploadResult){
         val imageref = storageRef.child(cylinderId+getCurrentTimeStamp()+".jpg")
 
         val baos = ByteArrayOutputStream()
@@ -283,13 +284,20 @@ class FirebaseDBHelper  {
         }
     }
 
-    fun addCylinderToDatabase(qrGeneratorActivity: QRGeneratorActivity, timestamp: Date, cylId: String) {
+    private fun Timestamp.getDateTime(): String {
+        val sdf = SimpleDateFormat("MM/dd/yyyy")
+        val netDate = Date(this.seconds * 1000)
+        return sdf.format(netDate)
+    }
+
+    fun addCylinderToDatabase(qrGeneratorActivity: QRGeneratorActivity, timestamp: Date, cylId: String, uri: Task<Uri>) {
         val cylinder = HashMap<String, Any>()
         cylinder["timestamp"] = timestamp
         val currOwner = Firebase.auth.currentUser?.phoneNumber?.removePrefix("+91") ?: return
         cylinder["current_owner"] = currOwner
         cylinder["createdBy"] = currOwner
         cylinder["isCitizen"] = false
+        cylinder["imageUrl"] = uri.toString()
         val cylCollection = db.collection("cylinders")
         cylCollection.document(cylId)
             .set(cylinder)
@@ -305,13 +313,22 @@ class FirebaseDBHelper  {
         userCollection.document(currOwner).update("cylinders", FieldValue.arrayUnion(cylId))
     }
 
-    private fun Timestamp.getDateTime(): String {
-        val sdf = SimpleDateFormat("MM/dd/yyyy")
-        val netDate = Date(this.seconds * 1000)
-        return sdf.format(netDate)
-    }
-
     private fun getCurrentTimeStamp(): Timestamp {
         return Timestamp.now()
+    }
+
+    fun pushGeneratedQRCodeImage(cylinderId: String, bitmap: Bitmap?, callback: QRGeneratorActivity.OnUploadResult){
+        val imageref = storageRef.child("$cylinderId.jpg")
+        val baos = ByteArrayOutputStream()
+        bitmap?.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+        val data = baos.toByteArray()
+
+        val uploadTask = imageref.putBytes(data)
+        uploadTask.addOnFailureListener {
+            callback.onFaliure()
+        }.addOnSuccessListener { taskSnapshot ->
+            callback.onSuccess(imageref.downloadUrl)
+            taskSnapshot
+        }
     }
 }

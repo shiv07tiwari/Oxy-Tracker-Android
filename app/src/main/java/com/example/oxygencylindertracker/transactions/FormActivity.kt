@@ -100,6 +100,7 @@ class FormActivity : AppCompatActivity() {
     }
 
     private fun checkInputs(){
+        uploadRecieptImage()
         if(customerName.editText?.text !=null && customerName.editText?.text!!.isEmpty()!!){
             customerName.requestFocus()
             Toast.makeText(this, "This field cannot remain empty", Toast.LENGTH_LONG).show()
@@ -115,13 +116,13 @@ class FormActivity : AppCompatActivity() {
             contactNumber.requestFocus()
             Toast.makeText(this, "Invalid contact number", Toast.LENGTH_LONG).show()
         } else {
-            uploadReciptImage()
+            uploadRecieptImage()
         }
 
     }
 
-    fun uploadReciptImage(){
-        firebaseDBHelper.pushReciptImage(cylinderIdTextView.text.toString(),
+    fun uploadRecieptImage(){
+        firebaseDBHelper.pushRecieptImage(cylinderIdTextView.text.toString(),
             imageBitmap, object: OnUploadResult{
                 override fun onSuccess(url: Task<Uri>) {
                     Toast.makeText(context, "Upload Successful", Toast.LENGTH_SHORT).show()
@@ -154,7 +155,6 @@ class FormActivity : AppCompatActivity() {
 
             })
     }
-
 
 
     override fun onRequestPermissionsResult(
