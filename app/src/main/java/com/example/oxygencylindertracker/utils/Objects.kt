@@ -8,12 +8,13 @@ data class UserValidationResponse (
     val isError : Boolean
 )
 
-data class Cylinder (
+data class Cylinder(
     val id: String,
     val currentOwner: String,
-    val timestamp : String,
-    val type : String,
-    val isCitizen : Boolean
+    val timestamp: String,
+    val date: Long,
+    val type: String,
+    val isCitizen: Boolean
 )
 
 data class Citizen (

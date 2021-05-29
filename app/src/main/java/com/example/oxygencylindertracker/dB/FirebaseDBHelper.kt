@@ -92,9 +92,11 @@ class FirebaseDBHelper  {
                                 snapshot.id,
                                 data["current_owner"].toString(),
                                 timeStamp.getDateTime(),
+                                timeStamp.seconds,
                                 snapshot.id[0].toString(),
                                 isCitizen
                             ))
+
                     }
                 }
                 Log.e("Cylinders", cylinders.toString())
@@ -319,6 +321,7 @@ class FirebaseDBHelper  {
         uploadTask.addOnFailureListener {
             Log.e("Error", it.message.toString())
             callback.onFaliure()
+
         }.addOnSuccessListener {
             imageref.downloadUrl.addOnSuccessListener {
                 val imagePath = "$FIRESTORE_BASE_URL${it.encodedPath}"
@@ -328,6 +331,7 @@ class FirebaseDBHelper  {
                 Log.e("IMAGE URL", it.message.toString())
                 callback.onFaliure()
             }
+
         }
     }
 

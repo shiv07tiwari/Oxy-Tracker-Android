@@ -4,103 +4,125 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".auth.SignInActivity"
-    android:orientation="vertical">
+    tools:context=".auth.SignInActivity">
 
-    <ImageView
-        android:layout_width="90dp"
-        android:id="@+id/imageView"
-        app:layout_constraintLeft_toLeftOf="parent"
-        android:layout_marginTop="50dp"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:src="@drawable/camera"
-        android:layout_height="60dp">
 
-    </ImageView>
+    <EditText
+        android:id="@+id/authPhoneNumberText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:id="@+id/headtext"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/imageView"
-        android:layout_marginTop="60dp"
-        android:text="Please Enter Your Phone Number"
-        android:textStyle="bold"
-        android:textColor="@color/black"
-        android:textSize="18dp"
-        android:layout_height="wrap_content"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:id="@+id/subtext"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/headtext"
-        android:text="We will send an OTP on this Mobile Number for auto verification"
-        android:textColor="@color/gray"
-        android:padding="10dp"
-        android:textSize="14dp"
+        android:layout_marginStart="72dp"
+        android:layout_marginLeft="72dp"
+        android:layout_marginTop="72dp"
+        android:layout_marginEnd="72dp"
+        android:layout_marginRight="72dp"
+        android:backgroundTint="@color/colorPrimary"
         android:gravity="center"
-        android:layout_height="wrap_content"/>
+        android:hint="Search Cylinder"
+        android:shadowColor="@color/colorPrimary"
+        android:textColorHighlight="@color/lightpink"
+        android:textColorLink="@color/lightpink"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/subtext" />
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/authPhoneNumberText"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:theme="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
-            android:hint="Enter Phone Number" >
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                />
-        </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/authOTPText"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+    <Button
+        android:id="@+id/authGetOTPButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
-        android:hint="Enter OTP" >
+        android:layout_marginStart="32dp"
+        android:layout_marginLeft="32dp"
+        android:layout_marginTop="186dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginRight="32dp"
+        android:hint="Get OTP"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/subtext" />
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            />
-    </com.google.android.material.textfield.TextInputLayout>
 
-        <Button
-            android:id="@+id/authGetOTPButton"
-            android:layout_width="match_parent"
-            app:layout_constraintTop_toBottomOf="@id/authPhoneNumberText"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:hint="Get OTP" >
-        </Button>
+    <EditText
+        android:id="@+id/authOTPText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+
+        android:layout_marginStart="72dp"
+        android:layout_marginLeft="72dp"
+        android:layout_marginTop="72dp"
+        android:layout_marginEnd="72dp"
+        android:layout_marginRight="72dp"
+        android:backgroundTint="@color/colorPrimary"
+        android:gravity="center"
+        android:hint="Search Cylinder"
+        android:shadowColor="@color/colorPrimary"
+        android:textColorHighlight="@color/lightpink"
+        android:textColorLink="@color/lightpink"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/subtext" />
+
 
     <Button
         android:id="@+id/authLoginButton"
-        android:layout_width="match_parent"
-        app:layout_constraintTop_toBottomOf="@id/authPhoneNumberText"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:hint="Login" >
-    </Button>
+        android:layout_marginTop="186dp"
+        android:hint="Login"
+        app:layout_constraintEnd_toEndOf="@+id/authGetOTPButton"
+        app:layout_constraintStart_toStartOf="@+id/authGetOTPButton"
+        app:layout_constraintTop_toBottomOf="@+id/subtext" />
 
     <ProgressBar
         android:id="@+id/signInProgressBar"
         android:layout_width="wrap_content"
-        android:layout_marginTop="20dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:layout_marginTop="186dp"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/authPhoneNumberText" />
+        app:layout_constraintTop_toBottomOf="@+id/subtext" />
+
+    <ImageView
+        android:id="@+id/imageView3"
+        android:layout_width="279dp"
+        android:layout_height="104dp"
+        android:layout_marginTop="144dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/appname"
+        tools:ignore="VectorDrawableCompat" />
+
+    <TextView
+        android:id="@+id/headtext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:text="OTP Verification"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView3" />
+
+    <TextView
+        android:id="@+id/subtext"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="64dp"
+        android:layout_marginLeft="64dp"
+        android:layout_marginTop="14dp"
+        android:layout_marginEnd="64dp"
+        android:layout_marginRight="64dp"
+        android:gravity="center"
+        android:maxLines="2"
+        android:text="We will send you one time password on this mobile number"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/headtext" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

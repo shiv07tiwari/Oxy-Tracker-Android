@@ -44,7 +44,7 @@ class EntryTransactionActivity : AppCompatActivity() {
 
     fun displayData(currentHolderName : String) {
         cylinderIdTxtView.text = cylinderId
-        currentOwnerNameTxtView.text = currentHolderName
+        currentOwnerNameTxtView.text = "$currentHolderName ?"
         entryDetailsLL.visibility = View.VISIBLE
         confirmBtn.visibility = View.VISIBLE
         progressBar.visibility = View.GONE

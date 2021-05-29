@@ -7,6 +7,8 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.oxygencylindertracker.R
 import com.example.oxygencylindertracker.utils.Cylinder
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 class CylinderAdapter (cylinders : List<Cylinder>) : RecyclerView.Adapter<CylinderAdapter.CylinderItemViewHolder>() {
@@ -28,8 +30,16 @@ class CylinderAdapter (cylinders : List<Cylinder>) : RecyclerView.Adapter<Cylind
     }
 
     override fun onBindViewHolder(holder: CylinderItemViewHolder, position: Int) {
+        val month_date = SimpleDateFormat("dd MMM yyyy", Locale.ENGLISH)
+        val sdf = SimpleDateFormat("MM/dd/yyyyy")
+
+        val actualDate = cylinders[position].timestamp
+
+        val date: Date = sdf.parse(actualDate)
+
+        val month_name: String = month_date.format(date)
         holder.cylinderIdText.text = cylinders[position].id
-        holder.cylinderDateText.text = cylinders[position].timestamp
+        holder.cylinderDateText.text = month_name
     }
 
     fun filterList (cylinders: List<Cylinder>) {

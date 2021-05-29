@@ -2,24 +2,26 @@ package com.example.oxygencylindertracker.home
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.MenuInflater
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatAutoCompleteTextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.oxygencylindertracker.R
 import com.example.oxygencylindertracker.auth.SignInActivity
 import com.example.oxygencylindertracker.dB.FirebaseDBHelper
+import com.example.oxygencylindertracker.dB.LocalStorageHelper
 import com.example.oxygencylindertracker.qrcode.QRGeneratorActivity
 import com.example.oxygencylindertracker.qrcode.QRScannerActivity
 import com.example.oxygencylindertracker.utils.Cylinder
-import com.example.oxygencylindertracker.dB.LocalStorageHelper
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 class HomeActivity : AppCompatActivity() {
@@ -36,6 +38,7 @@ class HomeActivity : AppCompatActivity() {
     lateinit var scanQRButton : Button
     var cylinders : List<Cylinder> = listOf()
     lateinit var localStorageHelper: LocalStorageHelper
+    lateinit var sortBy: AppCompatAutoCompleteTextView
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,6 +56,7 @@ class HomeActivity : AppCompatActivity() {
         searchEditText = findViewById(R.id.editTextSearch)
         filtersLL = findViewById(R.id.filtersLL)
         scanQRButton = findViewById(R.id.homeScanQRBtn)
+//        sortBy = findViewById(R.id.sortby)
 
         userTextView.text = "Welcome ${localStorageHelper.getUserName(this)}"
 
@@ -65,7 +69,61 @@ class HomeActivity : AppCompatActivity() {
         scanQRButton.setOnClickListener {
             startActivity(Intent(this, QRScannerActivity::class.java))
         }
+
+        val customerList= mutableListOf<String>("ID","Date")
+
+        val adapter: ArrayAdapter<String> = ArrayAdapter<String>(
+            this,
+            android.R.layout.simple_spinner_item,
+            customerList)
+
     }
+
+    fun showPopupSort(v: View) {
+        val popup = PopupMenu(this, v)
+        val inflater: MenuInflater = popup.menuInflater
+        popup.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.date -> {
+                    mAdapter.filterList(cylinders.sortedBy { it.timestamp })
+                }
+                R.id.id -> {
+                    mAdapter.filterList(cylinders.sortedBy { it.id })
+                }
+                else -> super.onOptionsItemSelected(it)
+            }
+            true
+        }
+
+        inflater.inflate(R.menu.sort_menu, popup.menu)
+        popup.show()
+    }
+
+    fun showPopup(v: View) {
+        val popup = PopupMenu(this, v)
+        val inflater: MenuInflater = popup.menuInflater
+        popup.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.generate_qr -> {
+                    val intent = Intent(this, QRGeneratorActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
+                R.id.log_out -> {
+                    Firebase.auth.signOut()
+                    val intent = Intent(this, SignInActivity::class.java)
+                    startActivity(intent)
+                }
+                else -> super.onOptionsItemSelected(it)
+            }
+            true
+        }
+
+        inflater.inflate(R.menu.home_menu, popup.menu)
+        popup.show()
+    }
+
+
 
     private fun fetchCylindersData() {
         mRecyclerView.visibility = View.GONE
@@ -79,7 +137,7 @@ class HomeActivity : AppCompatActivity() {
     fun displayCylinderList (cylinders: List<Cylinder>) {
 
         this.cylinders = cylinders
-        totalCylindersText.text = "You have a custody of ${cylinders.size} Cylinder(s)"
+        totalCylindersText.text = "${cylinders.size} Cylinder(s) Owned"
 
         mAdapter = CylinderAdapter(cylinders)
         mRecyclerView.adapter = mAdapter
@@ -111,22 +169,22 @@ class HomeActivity : AppCompatActivity() {
         mAdapter.filterList(this.cylinders.filter { it.id.contains(text, true) })
     }
 
-    fun onRadioButtonClicked(view: View) {
-        if (view is RadioButton) {
-            val checked = view.isChecked
-
-            when (view.getId()) {
-                R.id.radioId ->
-                    if (checked) {
-                        mAdapter.filterList(this.cylinders.sortedBy { it.id })
-                    }
-                R.id.radioDate ->
-                    if (checked) {
-                        mAdapter.filterList(this.cylinders.sortedBy { it.timestamp })
-                    }
-            }
-        }
-    }
+//    fun onRadioButtonClicked(view: View) {
+//        if (view is RadioButton) {
+//            val checked = view.isChecked
+//
+//            when (view.getId()) {
+//                R.id.radioId ->
+//                    if (checked) {
+//                        mAdapter.filterList(this.cylinders.sortedBy { it.id })
+//                    }
+//                R.id.radioDate ->
+//                    if (checked) {
+//                        mAdapter.filterList(this.cylinders.sortedBy { it.timestamp })
+//                    }
+//            }
+//        }
+//    }
 
     fun displayEmptyList () {}
 
@@ -134,24 +192,24 @@ class HomeActivity : AppCompatActivity() {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu, menu)
-        return true
-    }
+//    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+//        menuInflater.inflate(R.menu.menu, menu)
+//        return true
+//    }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.generate_qr_button -> {
-                val intent = Intent(this, QRGeneratorActivity::class.java)
-                startActivity(intent)
-            }
-            R.id.logout_button -> {
-                Firebase.auth.signOut()
-                val intent = Intent(this, SignInActivity::class.java)
-                startActivity(intent)
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-        return true
-    }
+//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+//        when (item.itemId) {
+//            R.id.generate_qr -> {
+//                val intent = Intent(this, QRGeneratorActivity::class.java)
+//                startActivity(intent)
+//            }
+//            R.id.log_out -> {
+//                Firebase.auth.signOut()
+//                val intent = Intent(this, SignInActivity::class.java)
+//                startActivity(intent)
+//            }
+//            else -> super.onOptionsItemSelected(item)
+//        }
+//        return true
+//    }
 }
