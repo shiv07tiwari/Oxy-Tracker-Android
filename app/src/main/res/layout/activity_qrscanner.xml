@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".qrcode.QRScannerActivity"
     android:orientation="vertical">
     <FrameLayout
@@ -22,25 +23,27 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:orientation="horizontal">
-    <Button
+
+    <com.google.android.material.button.MaterialButton
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/scan_qr"
-        android:textSize="18sp"
-        android:background="@color/lightpink"
-        android:layout_margin="5dp"
         android:id="@+id/scan_qr_button"
+        android:layout_margin="5dp"
+        app:cornerRadius="20dp"
+        android:layout_height="60dp"
+        android:text="Scan QR"
         android:layout_gravity="bottom"
+        style="?attr/materialButtonOutlinedStyle"
         android:visibility="gone"/>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/enter_manually"
-        android:textSize="18sp"
-        android:background="@color/lightpink"
+        android:id="@+id/enter_id_btn"
         android:layout_margin="5dp"
+        app:cornerRadius="20dp"
+        android:layout_height="60dp"
+        android:text="@string/enter_manually"
         android:layout_gravity="bottom"
-        android:id="@+id/enter_id_btn"/>
+        style="?attr/materialButtonOutlinedStyle"
+        android:visibility="gone"/>
     </LinearLayout>
 </LinearLayout>

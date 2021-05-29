@@ -16,6 +16,7 @@ import com.example.oxygencylindertracker.R
 import com.example.oxygencylindertracker.dB.FirebaseDBHelper
 import com.example.oxygencylindertracker.transactions.EntryTransactionActivity
 import com.example.oxygencylindertracker.transactions.FormActivity
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputLayout
 import com.google.zxing.Result
 import me.dm7.barcodescanner.zxing.ZXingScannerView
@@ -27,10 +28,10 @@ class QRScannerActivity: AppCompatActivity(), ZXingScannerView.ResultHandler {
     private val MY_CAMERA_PERMISSION_CODE = 101
     private val CAMERA_REQUEST = 102
     lateinit var contentFrame: ViewGroup
-    lateinit var scanQRButton: Button
+    lateinit var scanQRButton: MaterialButton
     lateinit var openManualQRIdViewButton: Button
     lateinit var mManualQRIdView: View
-    lateinit var manualQRIdSubmitBtn: Button
+    lateinit var manualQRIdSubmitBtn: MaterialButton
     lateinit var manualQRIdEditText: TextInputLayout
 
     override fun onCreate(state: Bundle?) {
