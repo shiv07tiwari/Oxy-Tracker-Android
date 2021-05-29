@@ -12,4 +12,6 @@
     <string name="generate_qr">Generate QR</string>
     <string name="gen_new_qr">Generate another QR</string>
     <string name="logout">LogOut</string>
+    <string name="scan_qr">Scan QR</string>
+    <string name="enter_manually">Enter Cylinder ID Manually</string>
 </resources>
