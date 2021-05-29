@@ -43,6 +43,7 @@ class FirebaseDBHelper  {
     private val ownersKey = "owners"
     private val canExitKey = "canExit"
     private val generatedQRStorageDir = "QR/"
+    private val receiptStorageDir = "Receipt/"
     private val imageExtension = ".jpg"
 
     fun validateUserLogin (activity: SignInActivity) {
@@ -273,7 +274,7 @@ class FirebaseDBHelper  {
 
      fun pushReceiptImage(cylinderId: String, bitmap: Bitmap, callback: FormActivity.OnUploadResult){
         val currTimestamp = getCurrentTimeStamp()
-        val imageref = storageRef.child("$cylinderId$currTimestamp$imageExtension")
+        val imageref = storageRef.child("$receiptStorageDir$cylinderId$currTimestamp$imageExtension")
 
         val baos = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
