@@ -11,24 +11,25 @@
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:layout_weight="3"
+        android:layout_weight="4"
         android:src="@drawable/id">
     </ImageView>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="2"
+        android:layout_weight="1"
+        android:layout_margin="5dp"
+        android:layout_marginTop="10dp"
         android:orientation="vertical">
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/enter_qr_id_text"
             android:layout_width="match_parent"
-            android:theme="@style/MyTextInputLayout"
+            android:theme="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
             android:layout_height="wrap_content"
             android:hint="Enter Cylinder ID" >
 
             <com.google.android.material.textfield.TextInputEditText
-                android:theme="@style/MyTextInputEditText"
                 android:layout_width="match_parent"
                 android:textSize="20sp"
                 android:layout_height="wrap_content"
@@ -39,8 +40,11 @@
             android:id="@+id/enter_qr_id_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:background="@color/lightpink"
             android:layout_marginTop="10dp"
-            android:hint="Proceed" >
+            android:textColor="@color/white"
+            android:hint="PROCEED" >
         </Button>
     </LinearLayout>
 
