@@ -45,6 +45,10 @@ class FirebaseDBHelper  {
     private val generatedQRStorageDir = "QR/"
     private val receiptStorageDir = "Receipt/"
     private val imageExtension = ".jpg"
+    private val imageLinkKey = "imageLink"
+    private val addressKey = "address"
+    private val phoneKey = "phone"
+    private val FIRESTORE_BASE_URL = "https://firebasestorage.googleapis.com"
 
     fun validateUserLogin (activity: SignInActivity) {
         val userPhoneNumber = Firebase.auth.currentUser?.phoneNumber?.removePrefix("+91") ?: ""
@@ -153,7 +157,9 @@ class FirebaseDBHelper  {
 
             val currentOwnerDocument = db.collection(usersDB).document(currentOwnerId)
             val currentOwnerSnapshot = transaction.get(currentOwnerDocument)
+
             val newOwnerDocument = db.collection(usersDB).document(userPhoneNumber)
+
             val historyDocument = db.collection(historyDB).document(cylinderId)
             val historySnapshot = transaction.get(historyDocument)
 
@@ -161,10 +167,26 @@ class FirebaseDBHelper  {
                 // Handling this in case of taking the cylinder from the user and not citizen
                 val currentOwnerCylinders = currentOwnerSnapshot.get(cylindersKey) as List<String>
                 transaction.update(currentOwnerDocument, cylindersKey, currentOwnerCylinders.filter { it != cylinderId })
+            } else {
+                val currentCitizenDocument = db.collection(citizensDB).document(currentOwnerId)
+                val currentCitizenSnapshot = transaction.get(currentCitizenDocument)
+                if (!currentCitizenSnapshot.exists()) {
+                    Log.e("IMAGE DELETE", "No Citizen Found")
+                } else {
+                    var imageURL = currentCitizenSnapshot.getString(imageLinkKey) ?: ""
+                    Log.e("Image Path", imageURL.split("/").last().replace("%", "/"))
+                    val imageref = storageRef.child(imageURL.split("/").last().replace("%2F", "/"))
+                    imageref.delete().addOnSuccessListener {
+                        Log.e("IMAGE DELETE", "SUCCESS")
+                    }.addOnFailureListener {
+                        Log.e("IMAGE DELETE", "FAILED")
+                    }
+                }
+
             }
 
             val cylinderStatePast = hashMapOf(
-                currentOwnerKey to cylinderSnapshot.getString(currentOwnerKey),
+                currentOwnerKey to currentOwnerId,
                 isCitizenKey to cylinderSnapshot.getBoolean(isCitizenKey),
                 timestampKey to cylinderSnapshot.get(timestampKey)
             )
@@ -210,11 +232,11 @@ class FirebaseDBHelper  {
             val citizenNewDoc = db.collection(citizensDB).document()
 
             val citizenData = hashMapOf(
-                "address" to citizen.address,
-                "imageLink" to citizen.imageLink,
-                "name" to citizen.name,
-                "phone" to citizen.phone,
-                "timestamp" to getCurrentTimeStamp()
+                 addressKey to citizen.address,
+                 imageLinkKey to citizen.imageLink,
+                 nameKey to citizen.name,
+                 phoneKey to citizen.phone,
+                 timestampKey to getCurrentTimeStamp()
             )
 
             val cylinderStatePast = hashMapOf(
@@ -299,7 +321,7 @@ class FirebaseDBHelper  {
             callback.onFaliure()
         }.addOnSuccessListener {
             imageref.downloadUrl.addOnSuccessListener {
-                val imagePath = "https://firebasestorage.googleapis.com${it.encodedPath}"
+                val imagePath = "$FIRESTORE_BASE_URL${it.encodedPath}"
                 Log.e("URL", it.encodedPath.toString())
                 callback.onSuccess(imagePath)
             }.addOnFailureListener {
@@ -353,7 +375,7 @@ class FirebaseDBHelper  {
             callback.onFaliure()
         }.addOnSuccessListener {
             imageref.downloadUrl.addOnSuccessListener {
-                val imagePath = "https://firebasestorage.googleapis.com${it.encodedPath}"
+                val imagePath = "$FIRESTORE_BASE_URL${it.encodedPath}"
                 Log.e("URL", it.encodedPath.toString())
                 callback.onSuccess(imagePath)
             }.addOnFailureListener {
