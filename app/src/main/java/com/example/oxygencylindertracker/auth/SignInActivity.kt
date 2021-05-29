@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
 import com.example.oxygencylindertracker.R
 import com.example.oxygencylindertracker.dB.FirebaseDBHelper
@@ -31,6 +32,12 @@ class SignInActivity : AppCompatActivity() {
     lateinit var localStorageHelper: LocalStorageHelper
     lateinit var mProgressBar : ProgressBar
     lateinit var getOTPButton : Button
+    lateinit var logInButton : Button
+    lateinit var phoneNumberEditText : TextInputLayout
+    lateinit var OTPEditText : TextInputLayout
+    lateinit var titleText : TextView
+    lateinit var subText : TextView
+    private var isLoginInitiated = false
 
     private val callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks () {
         override fun onVerificationCompleted(p0: PhoneAuthCredential) {
@@ -48,6 +55,31 @@ class SignInActivity : AppCompatActivity() {
             }
             showMessage("Login Failed. Please Try Again")
         }
+
+        override fun onCodeAutoRetrievalTimeOut(p0: String) {
+            super.onCodeAutoRetrievalTimeOut(p0)
+            Log.e("Timeout", "Auto Retrieval Time Out")
+        }
+
+        override fun onCodeSent(p0: String, p1: PhoneAuthProvider.ForceResendingToken) {
+            super.onCodeSent(p0, p1)
+            titleText.text = "Auto Retrieving OTP...."
+            subText.text = "You can also enter the OTP manually below and login"
+            mProgressBar.visibility = View.GONE
+            logInButton.visibility = View.VISIBLE
+            OTPEditText.visibility = View.VISIBLE
+            phoneNumberEditText.visibility = View.GONE
+
+            logInButton.setOnClickListener {
+                val otp = OTPEditText.editText?.text.toString()
+                if (otp.length != 6) {
+                    showMessage("Invalid OTP")
+                } else {
+                    val credential = PhoneAuthProvider.getCredential(p0, otp)
+                    signInWithPhoneAuthCredentials(credential)
+                }
+            }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,11 +91,18 @@ class SignInActivity : AppCompatActivity() {
         setContentView(R.layout.activity_sign_in)
         firebaseDBHelper = FirebaseDBHelper()
         localStorageHelper = LocalStorageHelper()
+
+        phoneNumberEditText = findViewById(R.id.authPhoneNumberText)
+        OTPEditText = findViewById(R.id.authOTPText)
+        getOTPButton = findViewById(R.id.authGetOTPButton)
+        logInButton = findViewById(R.id.authLoginButton)
+        subText = findViewById(R.id.subtext)
+        titleText = findViewById(R.id.headtext)
+
         mProgressBar = findViewById(R.id.signInProgressBar)
         mProgressBar.visibility = View.GONE
-
-        val phoneNumberEditText = findViewById<TextInputLayout>(R.id.authPhoneNumberText)
-        getOTPButton = findViewById(R.id.authGetOTPButton)
+        logInButton.visibility = View.GONE
+        OTPEditText.visibility = View.GONE
 
         getOTPButton.setOnClickListener {
             authenticateUser(phoneNumberEditText.editText?.text.toString())
@@ -73,10 +112,11 @@ class SignInActivity : AppCompatActivity() {
     private fun authenticateUser (phoneNumber : String) {
         mProgressBar.visibility = View.VISIBLE
         getOTPButton.visibility = View.GONE
+
         Log.e("PHONE NUMBER", phoneNumber)
         val options = PhoneAuthOptions.newBuilder(auth)
             .setPhoneNumber("+91$phoneNumber")
-            .setTimeout(60L, TimeUnit.SECONDS)
+            .setTimeout(30L, TimeUnit.SECONDS)
             .setActivity(this)
             .setCallbacks(callbacks)
             .build()
@@ -98,6 +138,13 @@ class SignInActivity : AppCompatActivity() {
     }
 
     fun signInWithPhoneAuthCredentials(phoneAuthCredentials : PhoneAuthCredential) {
+        if (isLoginInitiated)
+            return
+        isLoginInitiated = true
+        mProgressBar.visibility = View.VISIBLE
+        logInButton.visibility = View.GONE
+        getOTPButton.visibility = View.GONE
+
         auth.signInWithCredential(phoneAuthCredentials)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {

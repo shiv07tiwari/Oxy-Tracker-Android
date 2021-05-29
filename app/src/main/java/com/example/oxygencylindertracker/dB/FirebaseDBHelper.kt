@@ -297,12 +297,13 @@ class FirebaseDBHelper  {
 
         var uploadTask = imageref.putBytes(data)
         uploadTask.addOnFailureListener {
-            Log.e("IMAGE UPLOAD", it.message.toString())
+            Log.e("Error", it.message.toString())
             callback.onFaliure()
         }.addOnSuccessListener {
             imageref.downloadUrl.addOnSuccessListener {
+                val imagePath = "https://firebasestorage.googleapis.com${it.encodedPath}"
                 Log.e("URL", it.encodedPath.toString())
-                callback.onSuccess(imageref.downloadUrl)
+                callback.onSuccess(imagePath)
             }.addOnFailureListener {
                 Log.e("IMAGE URL", it.message.toString())
                 callback.onFaliure()
@@ -316,14 +317,14 @@ class FirebaseDBHelper  {
         return sdf.format(netDate)
     }
 
-    fun addCylinderToDatabase(qrGeneratorActivity: QRGeneratorActivity, timestamp: Date, cylId: String, uri: Task<Uri>) {
+    fun addCylinderToDatabase(qrGeneratorActivity: QRGeneratorActivity, timestamp: Date, cylId: String, uri: String) {
         val cylinder = HashMap<String, Any>()
         cylinder["timestamp"] = timestamp
         val currOwner = Firebase.auth.currentUser?.phoneNumber?.removePrefix("+91") ?: return
         cylinder["current_owner"] = currOwner
         cylinder["createdBy"] = currOwner
         cylinder["isCitizen"] = false
-        cylinder["imageUrl"] = uri.toString()
+        cylinder["imageUrl"] = uri
         val cylCollection = db.collection(cylindersDB)
         cylCollection.document(cylId)
             .set(cylinder)
@@ -352,9 +353,15 @@ class FirebaseDBHelper  {
         val uploadTask = imageref.putBytes(data)
         uploadTask.addOnFailureListener {
             callback.onFaliure()
-        }.addOnSuccessListener { taskSnapshot ->
-            callback.onSuccess(imageref.downloadUrl)
-            taskSnapshot
+        }.addOnSuccessListener {
+            imageref.downloadUrl.addOnSuccessListener {
+                val imagePath = "https://firebasestorage.googleapis.com${it.encodedPath}"
+                Log.e("URL", it.encodedPath.toString())
+                callback.onSuccess(imagePath)
+            }.addOnFailureListener {
+                Log.e("IMAGE URL", it.message.toString())
+                callback.onFaliure()
+            }
         }
     }
 }

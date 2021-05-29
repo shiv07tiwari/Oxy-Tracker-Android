@@ -45,7 +45,7 @@ class FormActivity : AppCompatActivity() {
     lateinit var cylinderId: String
 
     interface OnUploadResult{
-        fun onSuccess(url: Task<Uri>)
+        fun onSuccess(path : String)
         fun onFaliure()
     }
 
@@ -124,14 +124,13 @@ class FormActivity : AppCompatActivity() {
     fun uploadReceiptImage(){
         firebaseDBHelper.pushReceiptImage(cylinderIdTextView.text.toString(),
             imageBitmap, object: OnUploadResult{
-                override fun onSuccess(url: Task<Uri>) {
+                override fun onSuccess(path: String) {
                     Toast.makeText(context, "Upload Successful", Toast.LENGTH_SHORT).show()
-                    //todo upload user and later transactions
 
                     val citizen = Citizen(
                         address.editText?.text.toString(),
                         customerName.editText?.text.toString(),
-                        imageLink = url.toString(),
+                        imageLink = path,
                         phone = contactNumber.editText?.text.toString()
                     )
 

@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -26,6 +27,7 @@ class QRScannerActivity: Activity(), ZXingScannerView.ResultHandler {
 
     override fun onCreate(state: Bundle?) {
         super.onCreate(state)
+
         firebaseDBHelper = FirebaseDBHelper()
         mScannerView = ZXingScannerView(this) // Programmatically initialize the scanner view
         mScannerView.setAutoFocus(true)
