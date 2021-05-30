@@ -90,8 +90,16 @@
         android:layout_below="@+id/type_layout"
         android:layout_margin="5dp"
         android:layout_marginTop="20dp"
-        android:gravity="bottom"
         android:id="@+id/generate_qr_button"/>
+
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:id="@+id/qrGeneratorProgressBar"
+        android:layout_below="@+id/type_layout"
+        android:layout_margin="5dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:layout_height="wrap_content" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -132,10 +140,4 @@
             android:textSize="18sp"/>
     </LinearLayout>
 
-    <ProgressBar
-        android:layout_width="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:id="@+id/qrGeneratorProgressBar"
-        android:layout_height="wrap_content" />
 </RelativeLayout>

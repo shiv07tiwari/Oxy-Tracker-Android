@@ -56,7 +56,8 @@ class FormActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        //AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        // commenting due to weird crash
         cylinderId = intent.getStringExtra("cylinderId").toString()
         firebaseDBHelper = FirebaseDBHelper()
         setContentView(R.layout.activity_form)
@@ -80,7 +81,6 @@ class FormActivity : AppCompatActivity() {
                 )
 
             } else {
-
                 var values = ContentValues()
                 values.put(MediaStore.Images.Media.TITLE, "New Picture")
                 values.put(MediaStore.Images.Media.DESCRIPTION, "From your Camera")

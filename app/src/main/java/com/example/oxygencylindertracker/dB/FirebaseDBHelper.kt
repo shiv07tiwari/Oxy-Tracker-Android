@@ -114,35 +114,6 @@ class FirebaseDBHelper  {
                 }
 
         }
-
-        db.collection(cylindersDB).whereEqualTo(currentOwnerKey, userPhoneNumber).get()
-            .addOnSuccessListener { documents ->
-                val cylinders = mutableListOf<Cylinder>()
-                documents.documents.map { snapshot ->
-                    val data = snapshot.data
-                    if (data != null) {
-                        val timeStamp = data[timestampKey] as Timestamp
-                        val isCitizen = data[isCitizenKey] as Boolean
-                        cylinders.add(
-                            Cylinder(
-                                snapshot.id,
-                                data["current_owner"].toString(),
-                                timeStamp.getDateTime(),
-                                timeStamp.seconds,
-                                snapshot.id[0].toString(),
-                                isCitizen
-                            ))
-
-                    }
-                }
-                Log.e("Cylinders", cylinders.toString())
-                activity.displayCylinderList(cylinders)
-            }
-            .addOnFailureListener { exception ->
-                Log.e("TAG", "Error getting documents: ", exception)
-                activity.showMessage("Error fetching Cylinders. Please try again later")
-                activity.displayEmptyList()
-            }
     }
 
     fun checkIfExitTransaction (activity: QRScannerActivity, cylinderId : String) {
@@ -362,7 +333,7 @@ class FirebaseDBHelper  {
             imageref.downloadUrl.addOnSuccessListener {
                 val imagePath = "$FIRESTORE_BASE_URL${it.encodedPath}"
                 Log.e("URL", it.encodedPath.toString())
-                callback.onSuccess(imagePath)
+                callback.onSuccess("$cylinderId$currTimestamp$imageExtension")
             }.addOnFailureListener {
                 Log.e("IMAGE URL", it.message.toString())
                 callback.onFaliure()
@@ -417,7 +388,7 @@ class FirebaseDBHelper  {
             imageref.downloadUrl.addOnSuccessListener {
                 val imagePath = "$FIRESTORE_BASE_URL${it.encodedPath}"
                 Log.e("URL", it.encodedPath.toString())
-                callback.onSuccess(imagePath)
+                callback.onSuccess("$cylinderId$imageExtension")
             }.addOnFailureListener {
                 Log.e("IMAGE URL", it.message.toString())
                 callback.onFaliure()
