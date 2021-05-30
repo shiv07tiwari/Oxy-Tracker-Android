@@ -39,7 +39,7 @@
         android:layout_marginLeft="64dp"
         android:layout_marginEnd="64dp"
         android:layout_marginRight="64dp"
-        android:background="#c0c0c0"
+        android:background="#F0F0F0"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
