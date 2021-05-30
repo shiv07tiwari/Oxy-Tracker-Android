@@ -46,7 +46,7 @@ class SignInActivity : AppCompatActivity() {
     private val callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks () {
         override fun onVerificationCompleted(p0: PhoneAuthCredential) {
             Log.i("AUTH_MESSAGE", "Verification Completed")
-            //signInWithPhoneAuthCredentials(p0)
+            signInWithPhoneAuthCredentials(p0)
         }
 
         override fun onVerificationFailed(e: FirebaseException) {
