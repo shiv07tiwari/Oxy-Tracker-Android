@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".auth.SignInActivity">
 
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/authPhoneTextLayout"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -14,7 +15,7 @@
         android:layout_marginStart="40dp"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="40dp"
-        android:hint="Phone Number"
+        android:hint="10 digit mobile number"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/guideline2"
@@ -44,7 +45,7 @@
 <!--        app:layout_constraintStart_toStartOf="parent"-->
 <!--        app:layout_constraintTop_toTopOf="@+id/guideline2" />-->
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/authGetOTPButton"
         style="@style/Widget.MaterialComponents.Button"
         android:layout_width="match_parent"
@@ -53,7 +54,7 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="8dp"
         android:text="Get OTP"
-        app:cornerRadius="8dp"
+        app:cornerRadius="20dp"
         android:textColor="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -99,7 +100,7 @@
 <!--        app:layout_constraintStart_toStartOf="parent"-->
 <!--        app:layout_constraintTop_toTopOf="@+id/guideline2" />-->
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/authLoginButton"
         style="@style/Widget.MaterialComponents.Button"
         android:layout_width="0dp"
@@ -108,7 +109,7 @@
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
         android:text="Login"
-        app:cornerRadius="8dp"
+        app:cornerRadius="20dp"
         android:textColor="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

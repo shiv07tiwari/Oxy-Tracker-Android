@@ -71,14 +71,12 @@ class SignInActivity : AppCompatActivity() {
             logInButton.visibility = View.VISIBLE
             OTPEditText.visibility = View.VISIBLE
             phoneNumberEditText.visibility = View.GONE
-            authPhoneTextLayout.visibility = View.GONE
-            otpTextLayout.visibility = View.VISIBLE
             getOTPButton.visibility = View.GONE
 
             logInButton.setOnClickListener {
                 val otp = OTPEditText.text.toString()
                 if (otp.length != 6) {
-                    showMessage("Invalid OTP")
+                    Toast.makeText(baseContext, "Invalid OTP", Toast.LENGTH_SHORT).show()
                 } else {
                     val credential = PhoneAuthProvider.getCredential(p0, otp)
                     signInWithPhoneAuthCredentials(credential)
@@ -113,6 +111,9 @@ class SignInActivity : AppCompatActivity() {
         otpTextLayout.visibility = View.GONE
 
         getOTPButton.setOnClickListener {
+            if (!android.util.Patterns.PHONE.matcher(phoneNumberEditText.text.toString()).matches()) {
+                Toast.makeText(this, "Invalid Phone Number", Toast.LENGTH_SHORT).show()
+            }
             authenticateUser(phoneNumberEditText.text.toString())
         }
     }
@@ -136,10 +137,8 @@ class SignInActivity : AppCompatActivity() {
         mProgressBar.visibility = View.GONE
         getOTPButton.visibility = View.VISIBLE
         phoneNumberEditText.visibility = View.VISIBLE
-        authPhoneTextLayout.visibility = View.VISIBLE
         logInButton.visibility = View.GONE
         OTPEditText.visibility = View.GONE
-        otpTextLayout.visibility = View.GONE
         titleText.text = ""
         subText.text = "Enter phone number for OTP verification"
 
