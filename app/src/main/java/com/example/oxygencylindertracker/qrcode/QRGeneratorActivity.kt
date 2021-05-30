@@ -16,6 +16,7 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.example.oxygencylindertracker.R
+import com.example.oxygencylindertracker.customui.ReselectableSpinner
 import com.example.oxygencylindertracker.dB.FirebaseDBHelper
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.MultiFormatWriter
@@ -27,7 +28,7 @@ import java.util.*
 import kotlinx.android.synthetic.main.activity_qrgenerator.*
 
 
-class QRGeneratorActivity : AppCompatActivity() {
+class QRGeneratorActivity : AppCompatActivity(), ReselectableSpinner.OnSpinnerCancelledListener {
 
     lateinit var firebaseDBHelper: FirebaseDBHelper
     lateinit var saveQRLayout: LinearLayout
@@ -111,9 +112,8 @@ class QRGeneratorActivity : AppCompatActivity() {
                 optionEditText.clearFocus()
             }
         }
+        optionSpinnerView.onCloseListener = this
         optionSpinnerView.adapter = OptionsSpinnerAdapter(this, allOptionsList)
-
-
     }
 
     fun checkIfCanGenerateQR(){
@@ -252,5 +252,9 @@ class QRGeneratorActivity : AppCompatActivity() {
             }
             return view
         }
+    }
+
+    override fun onSpinnerCancelled() {
+        cyl_type.clearFocus()
     }
 }
