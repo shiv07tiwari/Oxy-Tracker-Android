@@ -18,6 +18,7 @@ class CylinderAdapter (cylinders : List<Cylinder>) : RecyclerView.Adapter<Cylind
     class CylinderItemViewHolder(v: View) : RecyclerView.ViewHolder(v) {
         var cylinderIdText : TextView = v.findViewById(R.id.cylinderItemId)
         var cylinderDateText : TextView = v.findViewById(R.id.cylinderItemDate)
+        val cylinderItemTime : TextView = v.findViewById(R.id.cylinderItemTime)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CylinderItemViewHolder {
@@ -34,12 +35,16 @@ class CylinderAdapter (cylinders : List<Cylinder>) : RecyclerView.Adapter<Cylind
         val sdf = SimpleDateFormat("MM/dd/yyyyy")
 
         val actualDate = cylinders[position].timestamp
-
         val date: Date = sdf.parse(actualDate)
+
+        val dateTimeStamp = Date(cylinders[position].date * 1000)
+        val formatTime = SimpleDateFormat("HH:mm")
+        val timeString =  formatTime.format(dateTimeStamp)
 
         val month_name: String = month_date.format(date)
         holder.cylinderIdText.text = cylinders[position].id
         holder.cylinderDateText.text = month_name
+        holder.cylinderItemTime.text = timeString
     }
 
     fun filterList (cylinders: List<Cylinder>) {

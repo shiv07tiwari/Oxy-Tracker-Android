@@ -24,6 +24,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 
+
 class HomeActivity : AppCompatActivity() {
 
     lateinit var mRecyclerView: RecyclerView
@@ -68,9 +69,9 @@ class HomeActivity : AppCompatActivity() {
             startActivity(Intent(this, QRScannerActivity::class.java))
         }
 
-        val customerList= mutableListOf<String>("ID","Date")
+        val customerList= mutableListOf("ID","Date")
 
-        val adapter: ArrayAdapter<String> = ArrayAdapter<String>(
+        val adapter: ArrayAdapter<String> = ArrayAdapter(
             this,
             android.R.layout.simple_spinner_item,
             customerList)
@@ -80,15 +81,15 @@ class HomeActivity : AppCompatActivity() {
     fun showPopupSort(v: View) {
         val popup = PopupMenu(this, v)
         val inflater: MenuInflater = popup.menuInflater
-        popup.setOnMenuItemClickListener {
-            when (it.itemId) {
+        popup.setOnMenuItemClickListener {item ->
+            when (item.itemId) {
                 R.id.date -> {
-                    mAdapter.filterList(cylinders.sortedBy { it.timestamp })
+                    mAdapter.filterList(cylinders.sortedBy { it.date })
                 }
                 R.id.id -> {
                     mAdapter.filterList(cylinders.sortedBy { it.id })
                 }
-                else -> super.onOptionsItemSelected(it)
+                else -> super.onOptionsItemSelected(item)
             }
             true
         }
