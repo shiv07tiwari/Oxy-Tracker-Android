@@ -111,6 +111,7 @@ class HomeActivity : AppCompatActivity() {
                     Firebase.auth.signOut()
                     val intent = Intent(this, SignInActivity::class.java)
                     startActivity(intent)
+                    finish()
                 }
                 else -> super.onOptionsItemSelected(it)
             }

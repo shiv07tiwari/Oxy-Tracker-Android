@@ -38,12 +38,15 @@ class SignInActivity : AppCompatActivity() {
     lateinit var OTPEditText : EditText
     lateinit var titleText : TextView
     lateinit var subText : TextView
+    lateinit var authPhoneTextLayout : TextInputLayout
+    lateinit var otpTextLayout : TextInputLayout
+
     private var isLoginInitiated = false
 
     private val callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks () {
         override fun onVerificationCompleted(p0: PhoneAuthCredential) {
             Log.i("AUTH_MESSAGE", "Verification Completed")
-            signInWithPhoneAuthCredentials(p0)
+            //signInWithPhoneAuthCredentials(p0)
         }
 
         override fun onVerificationFailed(e: FirebaseException) {
@@ -67,9 +70,14 @@ class SignInActivity : AppCompatActivity() {
             titleText.text = "Auto Retrieving OTP...."
             subText.text = "You can also enter the OTP manually below and login"
             mProgressBar.visibility = View.GONE
+
             logInButton.visibility = View.VISIBLE
             OTPEditText.visibility = View.VISIBLE
+            otpTextLayout.visibility = View.VISIBLE
+
             phoneNumberEditText.visibility = View.GONE
+            authPhoneTextLayout.visibility = View.GONE
+            getOTPButton.visibility = View.GONE
 
             logInButton.setOnClickListener {
                 val otp = OTPEditText.text.toString()
@@ -101,11 +109,14 @@ class SignInActivity : AppCompatActivity() {
         logInButton = findViewById(R.id.authLoginButton)
         subText = findViewById(R.id.subtext)
         titleText = findViewById(R.id.headtext)
-
         mProgressBar = findViewById(R.id.signInProgressBar)
+        authPhoneTextLayout = findViewById(R.id.authPhoneTextLayout)
+        otpTextLayout = findViewById(R.id.otpTextLayout)
+
         mProgressBar.visibility = View.GONE
         logInButton.visibility = View.GONE
         OTPEditText.visibility = View.GONE
+        otpTextLayout.visibility = View.GONE
 
         getOTPButton.setOnClickListener {
             authenticateUser(phoneNumberEditText.text.toString())
@@ -127,11 +138,14 @@ class SignInActivity : AppCompatActivity() {
     }
 
     fun showMessage(message : String) {
+        // Used to reflect any login error. Need to reset the screen system
         mProgressBar.visibility = View.GONE
         getOTPButton.visibility = View.VISIBLE
         phoneNumberEditText.visibility = View.VISIBLE
+        authPhoneTextLayout.visibility = View.VISIBLE
         logInButton.visibility = View.GONE
         OTPEditText.visibility = View.GONE
+        otpTextLayout.visibility = View.GONE
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
