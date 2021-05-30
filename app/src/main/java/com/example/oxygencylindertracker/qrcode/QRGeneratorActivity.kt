@@ -1,6 +1,8 @@
 package com.example.oxygencylindertracker.qrcode
 
+import android.Manifest
 import android.content.*
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.media.MediaScannerConnection
 import android.net.Uri
@@ -16,6 +18,8 @@ import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.example.oxygencylindertracker.R
 import com.example.oxygencylindertracker.dB.FirebaseDBHelper
 import com.google.zxing.BarcodeFormat
@@ -43,6 +47,7 @@ class QRGeneratorActivity : AppCompatActivity() {
     lateinit var generateQrButton: Button
     lateinit var generateNewQrButton: Button
     lateinit var qrCodeLayout: ConstraintLayout
+    private val STORAGE_CODE = 100
 
     var bitmap: Bitmap? = null
     var qrId: String = ""
@@ -82,8 +87,18 @@ class QRGeneratorActivity : AppCompatActivity() {
         }
 
         downloadQRButton.setOnClickListener{
-            if (qrId != "") {
-                bitmap?.let { saveImageToExternal(qrId, it) }
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                    STORAGE_CODE
+                )
+            } else {
+                Log.e("Log", "ELSE CONDITION")
+                if (qrId != "") {
+                    bitmap?.let { saveImageToExternal(qrId, it) }
+                }
             }
         }
 
@@ -110,6 +125,24 @@ class QRGeneratorActivity : AppCompatActivity() {
         qrGeneratorProgressBar.visibility = View.GONE
         showMessage("Unauthorized to Generate QR. Please contact Admins")
         finish()
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String?>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == STORAGE_CODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "Storage permission granted", Toast.LENGTH_LONG).show()
+                if (qrId != "") {
+                    bitmap?.let { saveImageToExternal(qrId, it) }
+                }
+            } else {
+                Toast.makeText(this, "Storage permission denied", Toast.LENGTH_LONG).show()
+            }
+        }
     }
 
     private fun generateQRCode(){
