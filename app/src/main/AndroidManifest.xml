@@ -13,18 +13,17 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:screenOrientation="portrait"
         android:theme="@style/AppTheme">
-        <activity android:name=".qrcode.QRScannerActivity">
+        <activity android:name=".qrcode.QRScannerActivity" android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".qrcode.QRGeneratorActivity">
+        <activity android:name=".qrcode.QRGeneratorActivity" android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".transactions.EntryTransactionActivity">
+        <activity android:name=".transactions.EntryTransactionActivity" android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".transactions.FormActivity">
+        <activity android:name=".transactions.FormActivity" android:screenOrientation="portrait">
 
         </activity>
-        <activity android:name=".auth.SignInActivity">
+        <activity android:name=".auth.SignInActivity" android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
