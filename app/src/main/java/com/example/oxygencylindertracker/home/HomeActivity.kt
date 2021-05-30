@@ -87,7 +87,7 @@ class HomeActivity : AppCompatActivity() {
         popup.setOnMenuItemClickListener {item ->
             when (item.itemId) {
                 R.id.date -> {
-                    mAdapter.filterList(cylinders.sortedBy { it.date })
+                    mAdapter.filterList(cylinders.sortedBy { it.date }.reversed())
                 }
                 R.id.id -> {
                     mAdapter.filterList(cylinders.sortedBy { it.id })

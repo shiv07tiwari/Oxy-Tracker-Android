@@ -38,7 +38,7 @@ class CylinderAdapter (cylinders : List<Cylinder>) : RecyclerView.Adapter<Cylind
         val date: Date = sdf.parse(actualDate)
 
         val dateTimeStamp = Date(cylinders[position].date * 1000)
-        val formatTime = SimpleDateFormat("HH:mm")
+        val formatTime = SimpleDateFormat("h:mm a")
         val timeString =  formatTime.format(dateTimeStamp)
 
         val month_name: String = month_date.format(date)
