@@ -58,6 +58,7 @@ class FormActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         //AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         // commenting due to weird crash
+
         cylinderId = intent.getStringExtra("cylinderId").toString()
         firebaseDBHelper = FirebaseDBHelper()
         setContentView(R.layout.activity_form)
