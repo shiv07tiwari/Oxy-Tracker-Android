@@ -41,6 +41,7 @@ class QRGeneratorActivity : AppCompatActivity() {
     lateinit var qrGeneratorProgressBar: ProgressBar
     lateinit var generateQrButton: Button
     lateinit var generateNewQrButton: Button
+    lateinit var qrCodeLayout: RelativeLayout
 
     var bitmap: Bitmap? = null
     var qrId: String = ""
@@ -64,11 +65,12 @@ class QRGeneratorActivity : AppCompatActivity() {
         generateNewQrButton = findViewById(R.id.new_qr_btn)
         qrGeneratorProgressBar = findViewById(R.id.qrGeneratorProgressBar)
         typeLayout = findViewById(R.id.type_layout)
+        qrCodeLayout = findViewById(R.id.qr_code_layout)
         val copyCylIdButton = findViewById<Button>(R.id.copy_cyl_id)
         val downloadQRButton = findViewById<Button>(R.id.save_qr_button)
         val shareQRButton = findViewById<Button>(R.id.share_qr_btn)
 
-        qrGeneratorProgressBar.visibility = View.GONE
+        checkIfCanGenerateQR()
 
         generateQrButton.setOnClickListener{
             generateQRCode()
@@ -91,6 +93,22 @@ class QRGeneratorActivity : AppCompatActivity() {
         generateNewQrButton.setOnClickListener {
             recreate()
         }
+    }
+
+    fun checkIfCanGenerateQR(){
+        qrGeneratorProgressBar.visibility = VISIBLE
+        firebaseDBHelper.checkIfCanGenerateQR(this)
+    }
+
+    fun canGenerateQR(){
+        qrGeneratorProgressBar.visibility = View.GONE
+        qrCodeLayout.visibility = VISIBLE
+    }
+
+    fun cannotGenerateQR(){
+        qrGeneratorProgressBar.visibility = View.GONE
+        showMessage("Unauthorized to Generate QR. Please contact Admins")
+        finish()
     }
 
     private fun generateQRCode(){

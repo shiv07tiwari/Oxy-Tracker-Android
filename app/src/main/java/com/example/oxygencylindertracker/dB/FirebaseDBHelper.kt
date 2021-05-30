@@ -1,5 +1,6 @@
 package com.example.oxygencylindertracker.dB
 
+import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
@@ -23,7 +24,7 @@ import java.lang.Exception
 import java.text.SimpleDateFormat
 import java.util.*
 
-class FirebaseDBHelper  {
+class FirebaseDBHelper {
 
     companion object {
         private val db = Firebase.firestore
@@ -42,6 +43,7 @@ class FirebaseDBHelper  {
     private val historyDB = "history"
     private val ownersKey = "owners"
     private val canExitKey = "canExit"
+    private val canGenerateQRKey = "canGenerateQR"
     private val generatedQRStorageDir = "QR/"
     private val receiptStorageDir = "Receipt/"
     private val imageExtension = ".jpg"
@@ -50,7 +52,7 @@ class FirebaseDBHelper  {
     private val phoneKey = "phone"
     private val FIRESTORE_BASE_URL = "https://firebasestorage.googleapis.com"
 
-    fun validateUserLogin (activity: SignInActivity) {
+    fun validateUserLogin(activity: SignInActivity) {
         val userPhoneNumber = Firebase.auth.currentUser?.phoneNumber?.removePrefix("+91") ?: ""
 
         Log.e("Validating Phone Number", " :  $userPhoneNumber")
@@ -77,11 +79,11 @@ class FirebaseDBHelper  {
             }
     }
 
-    fun getCylindersDataForUser (activity: HomeActivity) {
+    fun getCylindersDataForUser(activity: HomeActivity) {
         val userPhoneNumber = Firebase.auth.currentUser?.phoneNumber?.removePrefix("+91") ?: ""
 
         db.collection(cylindersDB).whereEqualTo(currentOwnerKey, userPhoneNumber)
-            .addSnapshotListener{ documents , error ->
+            .addSnapshotListener { documents, error ->
                 if (error != null) {
                     Log.e("TAG", "Error getting documents: ", error)
                     activity.showMessage("Error fetching Cylinders. Please try again later")
@@ -102,7 +104,8 @@ class FirebaseDBHelper  {
                                         timeStamp.seconds,
                                         snapshot.id[0].toString(),
                                         isCitizen
-                                    ))
+                                    )
+                                )
                             }
                         }
                         Log.e("Cylinders", cylinders.toString())
@@ -113,10 +116,10 @@ class FirebaseDBHelper  {
                     }
                 }
 
-        }
+            }
     }
 
-    fun checkIfExitTransaction (activity: QRScannerActivity, cylinderId : String) {
+    fun checkIfExitTransaction(activity: QRScannerActivity, cylinderId: String) {
         val userPhoneNumber = Firebase.auth.currentUser?.phoneNumber?.removePrefix("+91") ?: ""
 
         db.runTransaction { transaction ->
@@ -151,9 +154,9 @@ class FirebaseDBHelper  {
         }
     }
 
-    fun performEntryTransaction (cylinderId: String, activity: EntryTransactionActivity) {
+    fun performEntryTransaction(cylinderId: String, activity: EntryTransactionActivity) {
         val userPhoneNumber = Firebase.auth.currentUser?.phoneNumber?.removePrefix("+91") ?: ""
-        db.runTransaction {transaction ->
+        db.runTransaction { transaction ->
             val cylinderDocument = db.collection(cylindersDB).document(cylinderId)
             val cylinderSnapshot = transaction.get(cylinderDocument)
             if (!cylinderSnapshot.exists()) {
@@ -175,7 +178,10 @@ class FirebaseDBHelper  {
             if (currentOwnerSnapshot.exists()) {
                 // Handling this in case of taking the cylinder from the user and not citizen
                 val currentOwnerCylinders = currentOwnerSnapshot.get(cylindersKey) as List<String>
-                transaction.update(currentOwnerDocument, cylindersKey, currentOwnerCylinders.filter { it != cylinderId })
+                transaction.update(
+                    currentOwnerDocument,
+                    cylindersKey,
+                    currentOwnerCylinders.filter { it != cylinderId })
             } else {
                 val currentCitizenDocument = db.collection(citizensDB).document(currentOwnerId)
                 val currentCitizenSnapshot = transaction.get(currentCitizenDocument)
@@ -201,7 +207,11 @@ class FirebaseDBHelper  {
             )
 
             if (historySnapshot.exists()) {
-                transaction.update(historyDocument, ownersKey, FieldValue.arrayUnion(cylinderStatePast))
+                transaction.update(
+                    historyDocument,
+                    ownersKey,
+                    FieldValue.arrayUnion(cylinderStatePast)
+                )
             } else {
                 val newHistoryData = hashMapOf(
                     ownersKey to listOf(cylinderStatePast)
@@ -223,7 +233,11 @@ class FirebaseDBHelper  {
         }
     }
 
-    fun performExitTransaction (cylinderId: String, citizen: Citizen, callback: FormActivity.OnExitTransaction) {
+    fun performExitTransaction(
+        cylinderId: String,
+        citizen: Citizen,
+        callback: FormActivity.OnExitTransaction
+    ) {
 
         db.runTransaction { transaction ->
             val cylinderDocument = db.collection(cylindersDB).document(cylinderId)
@@ -236,16 +250,17 @@ class FirebaseDBHelper  {
                 ?: throw Exception("Current Owner is Null inside Cylinder")
 
             val currentOwnerSnapshot = db.collection(usersDB).document(currentOwnerId)
-            val currentOwnerCylinders = transaction.get(currentOwnerSnapshot).get(cylindersKey) as List<String>
+            val currentOwnerCylinders =
+                transaction.get(currentOwnerSnapshot).get(cylindersKey) as List<String>
 
             val citizenNewDoc = db.collection(citizensDB).document()
 
             val citizenData = hashMapOf(
-                 addressKey to citizen.address,
-                 prescriptionFileNameKey to citizen.imageLink,
-                 nameKey to citizen.name,
-                 phoneKey to citizen.phone,
-                 timestampKey to getCurrentTimeStamp()
+                addressKey to citizen.address,
+                prescriptionFileNameKey to citizen.imageLink,
+                nameKey to citizen.name,
+                phoneKey to citizen.phone,
+                timestampKey to getCurrentTimeStamp()
             )
 
             val cylinderStatePast = hashMapOf(
@@ -257,7 +272,11 @@ class FirebaseDBHelper  {
             val historyDocument = db.collection(historyDB).document(cylinderId)
             val historySnapshot = transaction.get(historyDocument)
             if (historySnapshot.exists()) {
-                transaction.update(historyDocument, ownersKey, FieldValue.arrayUnion(cylinderStatePast))
+                transaction.update(
+                    historyDocument,
+                    ownersKey,
+                    FieldValue.arrayUnion(cylinderStatePast)
+                )
             } else {
                 val newHistoryData = hashMapOf(
                     ownersKey to listOf(cylinderStatePast)
@@ -269,7 +288,10 @@ class FirebaseDBHelper  {
             transaction.update(cylinderDocument, currentOwnerKey, citizenNewDoc.id)
             transaction.update(cylinderDocument, timestampKey, getCurrentTimeStamp())
             transaction.update(cylinderDocument, isCitizenKey, true)
-            transaction.update(currentOwnerSnapshot, cylindersKey, currentOwnerCylinders.filter { it != cylinderId })
+            transaction.update(
+                currentOwnerSnapshot,
+                cylindersKey,
+                currentOwnerCylinders.filter { it != cylinderId })
 
         }.addOnSuccessListener {
             callback.onSuccess()
@@ -317,9 +339,14 @@ class FirebaseDBHelper  {
 
     }
 
-     fun pushReceiptImage(cylinderId: String, bitmap: Bitmap, callback: FormActivity.OnUploadResult){
+    fun pushReceiptImage(
+        cylinderId: String,
+        bitmap: Bitmap,
+        callback: FormActivity.OnUploadResult
+    ) {
         val currTimestamp = getCurrentTimeStamp().seconds
-        val imageref = storageRef.child("$receiptStorageDir$cylinderId$currTimestamp$imageExtension")
+        val imageref =
+            storageRef.child("$receiptStorageDir$cylinderId$currTimestamp$imageExtension")
         val baos = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos)
         val data = baos.toByteArray()
@@ -348,7 +375,12 @@ class FirebaseDBHelper  {
         return sdf.format(netDate)
     }
 
-    fun addCylinderToDatabase(qrGeneratorActivity: QRGeneratorActivity, timestamp: Date, cylId: String, uri: String) {
+    fun addCylinderToDatabase(
+        qrGeneratorActivity: QRGeneratorActivity,
+        timestamp: Date,
+        cylId: String,
+        uri: String
+    ) {
         val cylinder = HashMap<String, Any>()
         cylinder["timestamp"] = timestamp
         val currOwner = Firebase.auth.currentUser?.phoneNumber?.removePrefix("+91") ?: return
@@ -375,7 +407,11 @@ class FirebaseDBHelper  {
         return Timestamp.now()
     }
 
-    fun pushGeneratedQRCodeImage(cylinderId: String, bitmap: Bitmap?, callback: QRGeneratorActivity.OnUploadResult){
+    fun pushGeneratedQRCodeImage(
+        cylinderId: String,
+        bitmap: Bitmap?,
+        callback: QRGeneratorActivity.OnUploadResult
+    ) {
         val imageref = storageRef.child("$generatedQRStorageDir$cylinderId$imageExtension")
         val baos = ByteArrayOutputStream()
         bitmap?.compress(Bitmap.CompressFormat.JPEG, 50, baos)
@@ -393,6 +429,25 @@ class FirebaseDBHelper  {
                 Log.e("IMAGE URL", it.message.toString())
                 callback.onFaliure()
             }
+        }
+    }
+
+    fun checkIfCanGenerateQR(activity: QRGeneratorActivity) {
+        val userPhoneNumber = Firebase.auth.currentUser?.phoneNumber?.removePrefix("+91") ?: ""
+
+        var canGenerateQR = false
+        db.runTransaction { transaction ->
+            val userDocument = db.collection(usersDB).document(userPhoneNumber)
+            val userSnapshot = transaction.get(userDocument)
+            canGenerateQR = userSnapshot.getBoolean(canGenerateQRKey) ?: false
+        }.addOnSuccessListener {
+            if (canGenerateQR) {
+                activity.canGenerateQR()
+            }else{
+                activity.cannotGenerateQR()
+            }
+        }.addOnFailureListener {
+            activity.showMessage(it.message ?: "Unexpected Error. Please try again")
         }
     }
 }
