@@ -119,7 +119,7 @@ class FirebaseDBHelper {
             }
     }
 
-    fun checkIfExitTransaction(activity: QRScannerActivity, cylinderId: String) {
+    fun checkIfExitTransaction(callback: QRScannerActivity.QRScannerCallback, cylinderId: String) {
         val userPhoneNumber = Firebase.auth.currentUser?.phoneNumber?.removePrefix("+91") ?: ""
 
         db.runTransaction { transaction ->
@@ -144,13 +144,12 @@ class FirebaseDBHelper {
             }
         }.addOnSuccessListener {
             if (it) {
-                activity.openExitTransactionScreen(cylinderId)
+                callback.openExitTransactionScreen(cylinderId)
             } else {
-                activity.openEntryTransactionScreen(cylinderId)
+                callback.openEntryTransactionScreen(cylinderId)
             }
         }.addOnFailureListener {
-            activity.showMessage(it.message ?: "Unexpected Error. Please try again")
-            activity.resumeScanner()
+            callback.onError()
         }
     }
 
