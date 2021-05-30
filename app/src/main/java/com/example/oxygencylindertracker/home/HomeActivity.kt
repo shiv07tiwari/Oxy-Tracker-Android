@@ -131,9 +131,8 @@ class HomeActivity : AppCompatActivity() {
     private fun fetchCylindersData() {
         mRecyclerView.visibility = View.GONE
         mProgressBar.visibility = View.VISIBLE
-        totalCylindersText.visibility = View.GONE
         filtersLL.visibility = View.GONE
-        searchEditText.visibility = View.GONE
+        searchEditText.visibility = View.INVISIBLE
         firebaseDBHelper.getCylindersDataForUser(this)
     }
 
