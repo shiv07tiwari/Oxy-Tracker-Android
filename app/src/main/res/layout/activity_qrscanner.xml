@@ -12,6 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
         android:layout_marginTop="20dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -55,7 +56,7 @@
             android:layout_margin="5dp"
             android:text="Scan QR"
             android:visibility="gone"
-            app:cornerRadius="20dp" />
+            app:cornerRadius="8dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/enter_id_btn"
@@ -66,6 +67,6 @@
             android:layout_margin="5dp"
             android:text="@string/enter_manually"
             android:visibility="gone"
-            app:cornerRadius="20dp" />
+            app:cornerRadius="8dp" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
