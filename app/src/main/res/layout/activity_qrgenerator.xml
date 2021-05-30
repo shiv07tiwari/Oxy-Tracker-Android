@@ -17,6 +17,13 @@
         app:srcCompat="@drawable/appname"
         tools:ignore="VectorDrawableCompat" />
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/qr_code_layout"
+        android:layout_below="@+id/imageView"
+        android:visibility="gone">
+
     <ImageView
         android:layout_width="300dp"
         android:layout_height="300dp"
@@ -24,7 +31,6 @@
         android:layout_marginTop="30dp"
         android:contentDescription="@string/qr_code"
         android:id="@+id/qr_code"
-        android:layout_below="@+id/imageView"
         android:src="@drawable/placeholder">
     </ImageView>
 
@@ -91,13 +97,14 @@
         android:layout_margin="5dp"
         android:layout_marginTop="20dp"
         android:id="@+id/generate_qr_button"/>
+    </RelativeLayout>
 
     <ProgressBar
         android:layout_width="wrap_content"
         android:id="@+id/qrGeneratorProgressBar"
-        android:layout_below="@+id/type_layout"
         android:layout_margin="5dp"
         android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
         android:layout_marginTop="20dp"
         android:layout_height="wrap_content" />
 
@@ -105,7 +112,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:layout_below="@+id/generate_qr_button"
+        android:layout_below="@+id/qr_code_layout"
         android:visibility="gone"
         android:id="@+id/save_qr_layout"
         android:orientation="vertical">
