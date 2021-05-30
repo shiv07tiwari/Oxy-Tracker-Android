@@ -11,4 +11,5 @@
     <color name="lightpink">#D89AA0</color>
     <color name = "colorPrimary">#FF6863</color>
     <color name = "colorPrimaryDark">#D50000</color>
+    <color name="colorSecondary">#0091EA</color>
 </resources>

@@ -1,7 +1,6 @@
 package com.example.oxygencylindertracker.transactions
 
 import android.Manifest
-import android.R.attr.thumbnail
 import android.app.Activity
 import android.content.ContentValues
 import android.content.Intent
@@ -13,15 +12,12 @@ import android.provider.MediaStore
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.ContextCompat
 import com.example.oxygencylindertracker.R
 import com.example.oxygencylindertracker.dB.FirebaseDBHelper
 import com.example.oxygencylindertracker.home.HomeActivity
 import com.example.oxygencylindertracker.utils.Citizen
-import com.google.android.gms.tasks.Task
-import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
 
 
@@ -33,7 +29,6 @@ class FormActivity : AppCompatActivity() {
     private lateinit var contactNumber: TextInputLayout
     private lateinit var progressBar: ProgressBar
     private lateinit var address: TextInputLayout
-    private lateinit var picText: TextView
     private lateinit var cylinderIdTextView: TextView
     private  var imageSet: Boolean = false
     private val MY_CAMERA_PERMISSION_CODE = 101
@@ -69,9 +64,8 @@ class FormActivity : AppCompatActivity() {
         progressBar = findViewById(R.id.exitProgressBar)
         progressBar.visibility = View.GONE
         address = findViewById(R.id.address)
-        picText = findViewById(R.id.textView5)
         cylinderIdTextView = findViewById(R.id.cylinder_id)
-        cylinderIdTextView.text = cylinderId
+        cylinderIdTextView.text = "Cylinder ID: $cylinderId"
 
         imageView.setOnClickListener {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
@@ -186,13 +180,20 @@ class FormActivity : AppCompatActivity() {
                 imageBitmap = MediaStore.Images.Media.getBitmap(
                     this.contentResolver, imageUri
                 )
+                imageView.requestLayout()
+                imageView.layoutParams.height = convertdpToPx(240)
                 imageView.setImageBitmap(imageBitmap)
                 imageSet = true
-                picText.visibility = View.GONE
             } catch (e: Exception) {
                 e.printStackTrace()
             }
 
         }
+    }
+
+    fun convertdpToPx(dpVal: Int): Int{
+        val scale = resources.displayMetrics.density
+        val dpHeightInPx = (dpVal * scale).toInt()
+        return dpHeightInPx
     }
 }
