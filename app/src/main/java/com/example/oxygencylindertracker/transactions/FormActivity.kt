@@ -104,11 +104,11 @@ class FormActivity : AppCompatActivity() {
         }else if(address.editText?.text!=null && address.editText?.text!!.isEmpty()){
             address.requestFocus()
             Toast.makeText(this, "This field cannot remain empty", Toast.LENGTH_LONG).show()
-        }else if(!imageSet){
-            Toast.makeText(this, "Receipt image not taken", Toast.LENGTH_LONG).show()
-        }else if(!android.util.Patterns.PHONE.matcher(contactNumber.editText?.text).matches()){
-            contactNumber.requestFocus()
+        }else if(!android.util.Patterns.PHONE.matcher(contactNumber.editText?.text.toString()).matches()){
             Toast.makeText(this, "Invalid contact number", Toast.LENGTH_LONG).show()
+        }else if(!imageSet){
+            contactNumber.requestFocus()
+            Toast.makeText(this, "Receipt image not taken", Toast.LENGTH_LONG).show()
         } else {
             progressBar.visibility = View.VISIBLE
             submitBtn.visibility = View.GONE
