@@ -141,12 +141,14 @@ class QRScannerActivity: AppCompatActivity(), ZXingScannerView.ResultHandler {
         val intent = Intent(this, FormActivity::class.java)
         intent.putExtra("cylinderId", cylinderId)
         startActivity(intent)
+        finish()
     }
 
     fun openEntryTransactionScreen(cylinderId: String){
         val intent = Intent(this, EntryTransactionActivity::class.java)
         intent.putExtra("cylinderId", cylinderId)
         startActivity(intent)
+        finish()
     }
 
     fun resumeScanner(){

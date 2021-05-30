@@ -346,7 +346,7 @@ class FirebaseDBHelper {
     ) {
         val currTimestamp = getCurrentTimeStamp().seconds
         val imageref =
-            storageRef.child("$receiptStorageDir$cylinderId$currTimestamp$imageExtension")
+            storageRef.child("$receiptStorageDir$cylinderId-$currTimestamp$imageExtension")
         val baos = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos)
         val data = baos.toByteArray()

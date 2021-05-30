@@ -9,15 +9,15 @@
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="229dp"
-        android:layout_height="56dp"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
-        android:layout_marginTop="16dp"
-        app:srcCompat="@drawable/appname"
-        tools:ignore="VectorDrawableCompat"
+        android:layout_marginTop="20dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/appname"
+        tools:ignore="VectorDrawableCompat" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -27,20 +27,22 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintStart_toStartOf="@+id/imageView"
         app:layout_constraintTop_toBottomOf="@+id/imageView"
-        android:visibility="gone">
+        android:visibility="gone"
+        tools:visibility="visible">
 
         <ImageView
+            android:id="@+id/qr_code"
             android:layout_width="300dp"
             android:layout_height="300dp"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="16dp"
             android:contentDescription="@string/qr_code"
-            android:id="@+id/qr_code"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:src="@drawable/placeholder"
             app:layout_constraintBottom_toTopOf="@id/qr_id_layout"
-            android:src="@drawable/placeholder">
-        </ImageView>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"></ImageView>
+
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -53,6 +55,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/qr_code"
             android:visibility="gone"
+            tools:visibility="visible"
             >
             <TextView
                 android:layout_width="wrap_content"
@@ -80,24 +83,52 @@
             android:layout_below="@+id/qr_id_layout"
             app:layout_constraintTop_toBottomOf="@id/qr_id_layout"
             android:id="@+id/type_layout">
-            <TextView
+
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/cylinder_type"
-                android:layout_marginLeft="16dp"
-                android:layout_marginStart="16dp"
-                android:textSize="22sp"/>
-            <EditText
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:textSize="22sp"
-                android:id="@+id/cyl_type"
-                android:inputType="text"
-                android:layout_marginEnd="16dp"
-                android:layout_marginRight="16dp"
-                android:hint="@string/enter_here"/>
+                android:layout_weight="1
+"
+                android:layout_margin="16dp"
+                >
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/cyl_type"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:hint="Choose Type"
+                    app:layout_constraintBottom_toBottomOf="parent">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/optionEditText"
+                        android:inputType="none"
+                        android:cursorVisible="false"
+                        android:drawableEnd="@drawable/ic_next"
+                        android:textSize="15sp"
+                        />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.example.oxygencylindertracker.customui.ReselectableSpinner
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:spinnerMode="dropdown"
+                    android:overlapAnchor="false"
+                    android:dropDownWidth="match_parent"
+                    android:popupElevation="10dp"
+                    android:popupBackground="@color/white"
+                    android:id="@+id/optionSpinnerView"
+                    app:layout_constraintStart_toStartOf="@+id/cyl_type"
+                    app:layout_constraintEnd_toEndOf="@+id/cyl_type"
+                    app:layout_constraintTop_toTopOf="@+id/cyl_type"
+                    app:layout_constraintBottom_toBottomOf="@+id/cyl_type"
+                    android:visibility="invisible"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+
         </LinearLayout>
         <com.google.android.material.button.MaterialButton
             android:layout_width="match_parent"
@@ -125,6 +156,7 @@
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@+id/qr_code_layout"
         android:visibility="gone"
+        tools:visibility="visible"
         android:layout_marginTop="5dp"
         android:id="@+id/save_qr_layout"
         android:orientation="vertical">
@@ -169,6 +201,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         style="?attr/materialButtonOutlinedStyle"
         android:visibility="gone"
+        tools:visibility="visible"
         android:text="@string/gen_new_qr"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

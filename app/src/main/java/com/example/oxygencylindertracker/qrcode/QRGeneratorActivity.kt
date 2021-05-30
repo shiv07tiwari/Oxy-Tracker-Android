@@ -4,16 +4,15 @@ import android.Manifest
 import android.content.*
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.media.MediaScannerConnection
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.provider.MediaStore
 import android.text.TextUtils
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
 import android.view.View.VISIBLE
+import android.view.ViewGroup
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -21,20 +20,19 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.oxygencylindertracker.R
+import com.example.oxygencylindertracker.customui.ReselectableSpinner
 import com.example.oxygencylindertracker.dB.FirebaseDBHelper
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.MultiFormatWriter
 import com.google.zxing.WriterException
 import com.journeyapps.barcodescanner.BarcodeEncoder
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
 import java.io.OutputStream
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlinx.android.synthetic.main.activity_qrgenerator.*
 
 
-class QRGeneratorActivity : AppCompatActivity() {
+class QRGeneratorActivity : AppCompatActivity(), ReselectableSpinner.OnSpinnerCancelledListener {
 
     lateinit var firebaseDBHelper: FirebaseDBHelper
     lateinit var saveQRLayout: LinearLayout
@@ -51,6 +49,7 @@ class QRGeneratorActivity : AppCompatActivity() {
 
     var bitmap: Bitmap? = null
     var qrId: String = ""
+    private var allOptionsList = mutableListOf<String>("B", "D")
 
     interface OnUploadResult{
         fun onSuccess(path: String)
@@ -66,7 +65,7 @@ class QRGeneratorActivity : AppCompatActivity() {
         qrIdTextView = findViewById(R.id.qr_id)
         qrIdLayout = findViewById(R.id.qr_id_layout)
         saveQRLayout = findViewById(R.id.save_qr_layout)
-        cylTypeEditText = findViewById(R.id.cyl_type)
+//        cylTypeEditText = findViewById(R.id.cyl_type)
         generateQrButton = findViewById(R.id.generate_qr_button)
         generateNewQrButton = findViewById(R.id.new_qr_btn)
         qrGeneratorProgressBar = findViewById(R.id.qrGeneratorProgressBar)
@@ -109,6 +108,27 @@ class QRGeneratorActivity : AppCompatActivity() {
         generateNewQrButton.setOnClickListener {
             recreate()
         }
+
+        optionEditText.onFocusChangeListener = View.OnFocusChangeListener { v, hasFocus ->
+            if(hasFocus) {
+                optionSpinnerView.performClick()
+            }
+        }
+
+        optionEditText.showSoftInputOnFocus = false
+
+        optionSpinnerView.onAnyItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                optionEditText.clearFocus()
+            }
+
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                optionEditText.setText(allOptionsList?.get(position))
+                optionEditText.clearFocus()
+            }
+        }
+        optionSpinnerView.onCloseListener = this
+        optionSpinnerView.adapter = OptionsSpinnerAdapter(this, allOptionsList)
     }
 
     fun checkIfCanGenerateQR(){
@@ -149,7 +169,7 @@ class QRGeneratorActivity : AppCompatActivity() {
         val sdf = SimpleDateFormat("ddMMyyyy-hhmmss")
         val currDate = Date()
         val currentDate = sdf.format(currDate).toString()
-        val cylType = cylTypeEditText.text.toString()
+        val cylType = optionEditText.text.toString()
         if (cylType != "B" && cylType != "D") {
             showMessage("Invalid Cylinder Type. Please Add B / D")
             return
@@ -182,7 +202,7 @@ class QRGeneratorActivity : AppCompatActivity() {
         qrIdLayout.visibility = VISIBLE
         saveQRLayout.visibility = VISIBLE
         generateNewQrButton.visibility = VISIBLE
-        cylTypeEditText.text.clear()
+        optionEditText.text  = null
         typeLayout.visibility = View.GONE
         qrCodeImageView.setImageBitmap(bitmap)
     }
@@ -255,5 +275,19 @@ class QRGeneratorActivity : AppCompatActivity() {
         qrIdLayout.visibility = View.GONE
         saveQRLayout.visibility = View.GONE
         generateNewQrButton.visibility = View.GONE
+    }
+
+    inner class OptionsSpinnerAdapter(private var mContext: Context, private val list : List<String>) : ArrayAdapter<String>(mContext, R.layout.list_item_spinner_drop_down, list) {
+        override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
+            val view = convertView ?: LayoutInflater.from(mContext).inflate(R.layout.list_item_spinner_drop_down,parent, false)
+            if(view is TextView) {
+                view.text = list[position]
+            }
+            return view
+        }
+    }
+
+    override fun onSpinnerCancelled() {
+        cyl_type.clearFocus()
     }
 }

@@ -117,11 +117,9 @@ class FormActivity : AppCompatActivity() {
     }
 
     fun uploadReceiptImage(){
-        firebaseDBHelper.pushReceiptImage(cylinderIdTextView.text.toString(),
+        firebaseDBHelper.pushReceiptImage(cylinderIdTextView.text.toString().removePrefix("Cylinder ID: "),
             imageBitmap, object: OnUploadResult{
                 override fun onSuccess(path: String) {
-                    Toast.makeText(context, "Upload Successful", Toast.LENGTH_SHORT).show()
-
                     val citizen = Citizen(
                         address.editText?.text.toString(),
                         customerName.editText?.text.toString(),
