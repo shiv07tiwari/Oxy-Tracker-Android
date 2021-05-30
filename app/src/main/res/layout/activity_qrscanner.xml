@@ -53,7 +53,7 @@
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:layout_gravity="bottom"
-            android:layout_margin="5dp"
+            android:layout_margin="16dp"
             android:text="Scan QR"
             android:visibility="gone"
             app:cornerRadius="8dp" />
@@ -64,7 +64,7 @@
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:layout_gravity="bottom"
-            android:layout_margin="5dp"
+            android:layout_margin="16dp"
             android:text="@string/enter_manually"
             android:visibility="gone"
             app:cornerRadius="8dp" />
