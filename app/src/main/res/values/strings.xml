@@ -5,7 +5,7 @@
     <string name="qr_code">QR Code</string>
     <string name="cylinder_type">Type:</string>
     <string name="enter_here">Enter here</string>
-    <string name="cylinder_id">Cylinder ID:</string>
+    <string name="cylinder_id">CYLINDER ID: </string>
     <string name="copy_cyl_id">Copy ID</string>
     <string name="save_qr">Download</string>
     <string name="share_qr">Share QR</string>
