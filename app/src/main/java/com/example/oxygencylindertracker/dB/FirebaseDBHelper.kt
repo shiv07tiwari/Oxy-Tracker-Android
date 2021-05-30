@@ -359,7 +359,7 @@ class FirebaseDBHelper {
             imageref.downloadUrl.addOnSuccessListener {
                 val imagePath = "$FIRESTORE_BASE_URL${it.encodedPath}"
                 Log.e("URL", it.encodedPath.toString())
-                callback.onSuccess("$cylinderId$currTimestamp$imageExtension")
+                callback.onSuccess("$cylinderId-$currTimestamp$imageExtension")
             }.addOnFailureListener {
                 Log.e("IMAGE URL", it.message.toString())
                 callback.onFaliure()
