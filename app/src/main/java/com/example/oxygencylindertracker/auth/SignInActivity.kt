@@ -25,6 +25,7 @@ import com.google.firebase.auth.PhoneAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import java.util.concurrent.TimeUnit
+import kotlinx.android.synthetic.main.activity_sign_in.*
 
 class SignInActivity : AppCompatActivity() {
 
@@ -38,9 +39,6 @@ class SignInActivity : AppCompatActivity() {
     lateinit var OTPEditText : EditText
     lateinit var titleText : TextView
     lateinit var subText : TextView
-    lateinit var authPhoneTextLayout : TextInputLayout
-    lateinit var otpTextLayout : TextInputLayout
-
     private var isLoginInitiated = false
 
     private val callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks () {
@@ -68,15 +66,13 @@ class SignInActivity : AppCompatActivity() {
         override fun onCodeSent(p0: String, p1: PhoneAuthProvider.ForceResendingToken) {
             super.onCodeSent(p0, p1)
             titleText.text = "Auto Retrieving OTP...."
-            subText.text = "You can also enter the OTP manually below and login"
+            subText.text = "Or you could enter it manually and press login"
             mProgressBar.visibility = View.GONE
-
             logInButton.visibility = View.VISIBLE
             OTPEditText.visibility = View.VISIBLE
-            otpTextLayout.visibility = View.VISIBLE
-
             phoneNumberEditText.visibility = View.GONE
             authPhoneTextLayout.visibility = View.GONE
+            otpTextLayout.visibility = View.VISIBLE
             getOTPButton.visibility = View.GONE
 
             logInButton.setOnClickListener {
@@ -109,10 +105,8 @@ class SignInActivity : AppCompatActivity() {
         logInButton = findViewById(R.id.authLoginButton)
         subText = findViewById(R.id.subtext)
         titleText = findViewById(R.id.headtext)
-        mProgressBar = findViewById(R.id.signInProgressBar)
-        authPhoneTextLayout = findViewById(R.id.authPhoneTextLayout)
-        otpTextLayout = findViewById(R.id.otpTextLayout)
 
+        mProgressBar = findViewById(R.id.signInProgressBar)
         mProgressBar.visibility = View.GONE
         logInButton.visibility = View.GONE
         OTPEditText.visibility = View.GONE
@@ -146,6 +140,9 @@ class SignInActivity : AppCompatActivity() {
         logInButton.visibility = View.GONE
         OTPEditText.visibility = View.GONE
         otpTextLayout.visibility = View.GONE
+        titleText.text = ""
+        subText.text = "Enter phone number for OTP verification"
+
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
