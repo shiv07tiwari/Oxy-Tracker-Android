@@ -107,6 +107,7 @@
                         android:inputType="none"
                         android:cursorVisible="false"
                         android:drawableEnd="@drawable/ic_next"
+                        android:textColor="@color/black"
                         android:textSize="15sp"
                         />
                 </com.google.android.material.textfield.TextInputLayout>
