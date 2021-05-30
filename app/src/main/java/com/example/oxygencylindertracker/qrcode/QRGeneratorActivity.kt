@@ -15,6 +15,7 @@ import android.view.View.VISIBLE
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import com.example.oxygencylindertracker.R
 import com.example.oxygencylindertracker.dB.FirebaseDBHelper
 import com.google.zxing.BarcodeFormat
@@ -41,7 +42,7 @@ class QRGeneratorActivity : AppCompatActivity() {
     lateinit var qrGeneratorProgressBar: ProgressBar
     lateinit var generateQrButton: Button
     lateinit var generateNewQrButton: Button
-    lateinit var qrCodeLayout: RelativeLayout
+    lateinit var qrCodeLayout: ConstraintLayout
 
     var bitmap: Bitmap? = null
     var qrId: String = ""
@@ -147,6 +148,7 @@ class QRGeneratorActivity : AppCompatActivity() {
         qrIdTextView.text = qrId
         qrIdLayout.visibility = VISIBLE
         saveQRLayout.visibility = VISIBLE
+        generateNewQrButton.visibility = VISIBLE
         cylTypeEditText.text.clear()
         typeLayout.visibility = View.GONE
         qrCodeImageView.setImageBitmap(bitmap)
@@ -219,5 +221,6 @@ class QRGeneratorActivity : AppCompatActivity() {
         generateQrButton.visibility = View.GONE
         qrIdLayout.visibility = View.GONE
         saveQRLayout.visibility = View.GONE
+        generateNewQrButton.visibility = View.GONE
     }
 }
