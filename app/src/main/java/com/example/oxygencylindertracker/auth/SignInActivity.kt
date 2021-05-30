@@ -91,6 +91,7 @@ class SignInActivity : AppCompatActivity() {
         Log.e("AUTH CHECK", auth.currentUser.toString())
         if (auth.currentUser != null) {
             startActivity(Intent(this, HomeActivity::class.java))
+            finish()
         }
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_in)
