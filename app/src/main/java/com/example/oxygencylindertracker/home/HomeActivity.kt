@@ -77,6 +77,8 @@ class HomeActivity : AppCompatActivity() {
             android.R.layout.simple_spinner_item,
             customerList)
 
+        totalCylindersText.text = "Welcome ${localStorageHelper.getUserName(this)}!"
+
     }
 
     fun showPopupSort(v: View) {

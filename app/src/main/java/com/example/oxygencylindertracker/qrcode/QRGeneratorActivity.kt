@@ -2,9 +2,11 @@ package com.example.oxygencylindertracker.qrcode
 
 import android.content.*
 import android.graphics.Bitmap
+import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
 import android.text.TextUtils
 import android.util.Log
@@ -15,8 +17,6 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import com.example.oxygencylindertracker.R
 import com.example.oxygencylindertracker.dB.FirebaseDBHelper
-import com.example.oxygencylindertracker.transactions.FormActivity
-import com.google.android.gms.tasks.Task
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.MultiFormatWriter
 import com.google.zxing.WriterException
@@ -82,7 +82,7 @@ class QRGeneratorActivity : AppCompatActivity() {
 
         downloadQRButton.setOnClickListener{
             if (qrId != "") {
-                bitmap?.let { saveImageToInternalStorage(it, qrId) }
+                bitmap?.let { saveImageToExternal(qrId, it) }
             }
         }
 
@@ -156,21 +156,15 @@ class QRGeneratorActivity : AppCompatActivity() {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
-    private fun saveImageToInternalStorage(bitmap: Bitmap, cylinderId: String) {
-        // TODO: Save it in gallery instead of root level dir
-        val wrapper = ContextWrapper(applicationContext)
-        var file = wrapper.getDir("images", Context.MODE_PRIVATE)
-        file = File(file, "${cylinderId}.jpg")
-
-        try {
-            val stream: OutputStream = FileOutputStream(file)
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
-            stream.flush()
-            stream.close()
-            Toast.makeText(this, "QR download successful. Path: ${Uri.parse(file.absolutePath)}", Toast.LENGTH_LONG).show()
-        } catch (e: IOException){ // Catch the exception
-            e.printStackTrace()
-        }
+    fun saveImageToExternal(imgName: String, bm: Bitmap) {
+        val savedImageURL = MediaStore.Images.Media.insertImage(
+            contentResolver,
+            bm,
+            imgName,
+            "Image of $title"
+        )
+        Log.e("IMAGE", savedImageURL)
+        showMessage("QR Downloaded and saved to gallery!")
     }
 
     private fun shareQRCode(bitmap: Bitmap){
