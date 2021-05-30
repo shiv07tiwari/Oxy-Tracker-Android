@@ -45,7 +45,7 @@ class FirebaseDBHelper  {
     private val generatedQRStorageDir = "QR/"
     private val receiptStorageDir = "Receipt/"
     private val imageExtension = ".jpg"
-    private val imageLinkKey = "imageLink"
+    private val prescriptionFileNameKey = "prescriptionFileName"
     private val addressKey = "address"
     private val phoneKey = "phone"
     private val FIRESTORE_BASE_URL = "https://firebasestorage.googleapis.com"
@@ -182,9 +182,9 @@ class FirebaseDBHelper  {
                 if (!currentCitizenSnapshot.exists()) {
                     Log.e("IMAGE DELETE", "No Citizen Found")
                 } else {
-                    var imageURL = currentCitizenSnapshot.getString(imageLinkKey) ?: ""
-                    Log.e("Image Path", imageURL.split("/").last().replace("%", "/"))
-                    val imageref = storageRef.child(imageURL.split("/").last().replace("%2F", "/"))
+                    val imageURL = currentCitizenSnapshot.getString(prescriptionFileNameKey) ?: ""
+                    Log.e("Image Path", imageURL)
+                    val imageref = storageRef.child("$receiptStorageDir$imageURL")
                     imageref.delete().addOnSuccessListener {
                         Log.e("IMAGE DELETE", "SUCCESS")
                     }.addOnFailureListener {
@@ -242,7 +242,7 @@ class FirebaseDBHelper  {
 
             val citizenData = hashMapOf(
                  addressKey to citizen.address,
-                 imageLinkKey to citizen.imageLink,
+                 prescriptionFileNameKey to citizen.imageLink,
                  nameKey to citizen.name,
                  phoneKey to citizen.phone,
                  timestampKey to getCurrentTimeStamp()
