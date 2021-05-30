@@ -3,8 +3,8 @@
 
     <item
         android:id="@+id/date"
-        android:title="Date" />
+        android:title="Sort by Date" />
     <item
         android:id="@+id/id"
-        android:title="ID" />
+        android:title="Sort by ID" />
 </menu>
