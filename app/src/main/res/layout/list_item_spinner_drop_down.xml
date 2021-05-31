@@ -4,6 +4,6 @@
           android:layout_height="wrap_content"
           android:textColor="@color/black"
           xmlns:tools="http://schemas.android.com/tools"
-tools:text="Test String"
-android:padding="10dp"
-android:textSize="16sp"/>
+          tools:text="Test String"
+          android:padding="12dp"
+          android:textSize="16sp"/>
