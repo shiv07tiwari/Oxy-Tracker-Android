@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,11 +15,16 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.oxygencylindertracker.R
 import com.example.oxygencylindertracker.dB.FirebaseDBHelper
+import com.example.oxygencylindertracker.home.HomeActivity
 import com.example.oxygencylindertracker.transactions.EntryTransactionActivity
 import com.example.oxygencylindertracker.transactions.FormActivity
+import com.example.oxygencylindertracker.utils.Citizen
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
 import com.google.zxing.Result
+import kotlinx.android.synthetic.main.activity_qrmanual.*
+import kotlinx.android.synthetic.main.activity_qrmanual.view.*
 import me.dm7.barcodescanner.zxing.ZXingScannerView
 
 
@@ -33,6 +39,12 @@ class QRScannerActivity: AppCompatActivity(), ZXingScannerView.ResultHandler {
     lateinit var mManualQRIdView: View
     lateinit var manualQRIdSubmitBtn: MaterialButton
     lateinit var manualQRIdEditText: TextInputLayout
+
+    interface QRScannerCallback {
+        fun openExitTransactionScreen (cylinderId : String)
+        fun openEntryTransactionScreen (cylinderId : String)
+        fun onError()
+    }
 
     override fun onCreate(state: Bundle?) {
         super.onCreate(state)
@@ -67,21 +79,26 @@ class QRScannerActivity: AppCompatActivity(), ZXingScannerView.ResultHandler {
         }
     }
 
-    fun getManualQRIdView(): View{
+    private fun getManualQRIdView(): View{
         val mainLayout = findViewById<ViewGroup?>(android.R.id.content)
         val inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val view = inflater.inflate(R.layout.activity_qrmanual, mainLayout, false)
         return view
     }
 
-    fun setManualEditIdScreenInFrame(){
+    private fun setManualEditIdScreenInFrame(shouldShowScanQR:Boolean = true){
         contentFrame.removeView(mScannerView)
         contentFrame.addView(mManualQRIdView)
         openManualQRIdViewButton.visibility = View.GONE
-        scanQRButton.visibility = View.VISIBLE
+        mManualQRIdView.manualProgressBar.visibility = View.GONE
+        if (shouldShowScanQR) {
+            scanQRButton.visibility = View.VISIBLE
+        } else {
+            scanQRButton.visibility = View.INVISIBLE
+        }
     }
 
-    fun setScannerInFrame(){
+    private fun setScannerInFrame(){
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(
                 this,
@@ -93,7 +110,7 @@ class QRScannerActivity: AppCompatActivity(), ZXingScannerView.ResultHandler {
         }
     }
 
-    fun addScannerViewInFrame(){
+    private fun addScannerViewInFrame(){
         mScannerView.startCamera()
         contentFrame.removeView(mManualQRIdView)
         contentFrame.addView(mScannerView) // Set the scanner view as the content view
@@ -114,12 +131,24 @@ class QRScannerActivity: AppCompatActivity(), ZXingScannerView.ResultHandler {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == MY_CAMERA_PERMISSION_CODE) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "camera permission granted", Toast.LENGTH_LONG).show()
-                addScannerViewInFrame()
-            } else {
-                Toast.makeText(this, "camera permission denied", Toast.LENGTH_LONG).show()
+            for (permission in permissions) {
+                if(ActivityCompat.shouldShowRequestPermissionRationale(this, permission.toString())){
+                    Log.d("Permission", "Denied")
+                    setManualEditIdScreenInFrame(false)
+                    Snackbar.make(scanQRButton,
+                        "QR scanning cannot work since camera permission has been denied",
+                        Snackbar.LENGTH_LONG).show()
+
+                } else {
+                    if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                        addScannerViewInFrame()
+                    } else {
+                        setManualEditIdScreenInFrame(false)
+                    }
+                }
             }
+
+
         }
     }
 
@@ -137,23 +166,37 @@ class QRScannerActivity: AppCompatActivity(), ZXingScannerView.ResultHandler {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
-    fun openExitTransactionScreen(cylinderId: String){
-        val intent = Intent(this, FormActivity::class.java)
-        intent.putExtra("cylinderId", cylinderId)
-        startActivity(intent)
-    }
-
-    fun openEntryTransactionScreen(cylinderId: String){
-        val intent = Intent(this, EntryTransactionActivity::class.java)
-        intent.putExtra("cylinderId", cylinderId)
-        startActivity(intent)
-    }
-
     fun resumeScanner(){
         mScannerView.resumeCameraPreview(this)
     }
 
-    fun processCylinderTransaction(cylinderId: String){
-        firebaseDBHelper.checkIfExitTransaction(this, cylinderId)
+    private fun processCylinderTransaction(cylinderId: String){
+
+        mManualQRIdView.manualProgressBar.visibility = View.VISIBLE
+        mManualQRIdView.enter_qr_id_button.visibility = View.INVISIBLE
+        val context = this
+        firebaseDBHelper.checkIfExitTransaction( object : QRScannerCallback {
+            override fun openEntryTransactionScreen(cylinderId: String) {
+                val intent = Intent(context, EntryTransactionActivity::class.java)
+                intent.putExtra("cylinderId", cylinderId)
+                startActivity(intent)
+                finish()
+            }
+
+            override fun openExitTransactionScreen(cylinderId: String) {
+                val intent = Intent(context, FormActivity::class.java)
+                intent.putExtra("cylinderId", cylinderId)
+                startActivity(intent)
+                finish()
+            }
+
+            override fun onError() {
+                mManualQRIdView.manualProgressBar.visibility = View.GONE
+                mManualQRIdView.enter_qr_id_button.visibility = View.VISIBLE
+                context.showMessage("Unexpected Error. Please try again")
+                context.resumeScanner()
+            }
+
+        }, cylinderId)
     }
 }

@@ -55,7 +55,7 @@ class FormActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         cylinderId = intent.getStringExtra("cylinderId").toString()
-        firebaseDBHelper = FirebaseDBHelper()
+//        firebaseDBHelper = FirebaseDBHelper()
         setContentView(R.layout.activity_form)
         imageView = findViewById(R.id.reciptImage)
         submitBtn = findViewById(R.id.submitBtn);
@@ -126,11 +126,11 @@ class FormActivity : AppCompatActivity() {
         }else if(address.editText?.text!=null && address.editText?.text!!.isEmpty()){
             address.requestFocus()
             Toast.makeText(this, "This field cannot remain empty", Toast.LENGTH_LONG).show()
-        }else if(!imageSet){
-            Toast.makeText(this, "Receipt image not taken", Toast.LENGTH_LONG).show()
-        }else if(!android.util.Patterns.PHONE.matcher(contactNumber.editText?.text).matches()){
-            contactNumber.requestFocus()
+        }else if(!android.util.Patterns.PHONE.matcher(contactNumber.editText?.text.toString()).matches()){
             Toast.makeText(this, "Invalid contact number", Toast.LENGTH_LONG).show()
+        }else if(!imageSet){
+            contactNumber.requestFocus()
+            Toast.makeText(this, "Receipt image not taken", Toast.LENGTH_LONG).show()
         } else {
             progressBar.visibility = View.VISIBLE
             submitBtn.visibility = View.GONE
@@ -139,11 +139,9 @@ class FormActivity : AppCompatActivity() {
     }
 
     fun uploadReceiptImage(){
-        firebaseDBHelper.pushReceiptImage(cylinderIdTextView.text.toString(),
+        firebaseDBHelper.pushReceiptImage(cylinderIdTextView.text.toString().removePrefix("Cylinder ID: "),
             imageBitmap, object: OnUploadResult{
                 override fun onSuccess(path: String) {
-                    Toast.makeText(context, "Upload Successful", Toast.LENGTH_SHORT).show()
-
                     val citizen = Citizen(
                         address.editText?.text.toString(),
                         customerName.editText?.text.toString(),
@@ -197,18 +195,16 @@ class FormActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode === CAMERA_REQUEST && resultCode === Activity.RESULT_OK) {
-
             try {
                 imageBitmap = MediaStore.Images.Media.getBitmap(
                     this.contentResolver, imageUri
                 )
-                imageView2.visibility = View.GONE
-                textView.visibility = View.GONE
+                imageConstraint.visibility = View.GONE
                 imageView.visibility = View.VISIBLE
                 imageView.requestLayout()
-                imageView.layoutParams.height = convertdpToPx(240)
                 imageView.setImageBitmap(imageBitmap)
                 imageSet = true
+                imageContainer.visibility = View.VISIBLE
 
 
             } catch (e: Exception) {
