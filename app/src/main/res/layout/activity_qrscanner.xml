@@ -8,7 +8,7 @@
     tools:context=".home.HomeActivity">
 
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/appbar_image"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_marginStart="16dp"
@@ -19,6 +19,7 @@
         app:srcCompat="@drawable/appname"
         tools:ignore="VectorDrawableCompat" />
 
+
         <FrameLayout
             android:id="@+id/content_frame"
             android:layout_width="match_parent"
@@ -28,7 +29,7 @@
             app:layout_constraintBottom_toTopOf="@+id/linearLayout"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/imageView" />
+            app:layout_constraintTop_toBottomOf="@+id/appbar_image" />
 
 
     <LinearLayout
