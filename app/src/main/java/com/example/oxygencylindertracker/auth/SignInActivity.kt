@@ -15,6 +15,7 @@ import com.example.oxygencylindertracker.dB.FirebaseDBHelper
 import com.example.oxygencylindertracker.dB.LocalStorageHelper
 import com.example.oxygencylindertracker.home.HomeActivity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.android.material.snackbar.Snackbar
@@ -36,6 +37,7 @@ class SignInActivity : AppCompatActivity() {
     lateinit var logInButton : Button
     lateinit var titleText : TextView
     private val RC_SIGN_IN = 420
+    lateinit var googleSignInClient : GoogleSignInClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.e("AUTH CHECK", auth.currentUser.toString())
@@ -65,7 +67,8 @@ class SignInActivity : AppCompatActivity() {
                 .requestEmail()
                 .build()
 
-            val googleSignInClient = GoogleSignIn.getClient(activity, gso)
+            googleSignInClient = GoogleSignIn.getClient(activity, gso)
+            googleSignInClient.signOut()
             val signInIntent = googleSignInClient.signInIntent
             startActivityForResult(signInIntent, RC_SIGN_IN)
         }
@@ -93,7 +96,7 @@ class SignInActivity : AppCompatActivity() {
                 if (task.isSuccessful) {
                     Log.d("TAG", "signInWithCredential:success")
                     val user = auth.currentUser
-                    navigateToHomeScreen(user?.email ?: "", user?.displayName ?: "")
+                    firebaseDBHelper.validateUserLogin(this)
                 } else {
                     Log.w("TAG", "signInWithCredential:failure", task.exception)
                     showMessage("Login Error. Please try again")
