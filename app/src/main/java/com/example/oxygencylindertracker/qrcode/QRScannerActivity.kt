@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,6 +20,7 @@ import com.example.oxygencylindertracker.transactions.EntryTransactionActivity
 import com.example.oxygencylindertracker.transactions.FormActivity
 import com.example.oxygencylindertracker.utils.Citizen
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
 import com.google.zxing.Result
 import kotlinx.android.synthetic.main.activity_qrmanual.*
@@ -84,12 +86,16 @@ class QRScannerActivity: AppCompatActivity(), ZXingScannerView.ResultHandler {
         return view
     }
 
-    private fun setManualEditIdScreenInFrame(){
+    private fun setManualEditIdScreenInFrame(shouldShowScanQR:Boolean = true){
         contentFrame.removeView(mScannerView)
         contentFrame.addView(mManualQRIdView)
         openManualQRIdViewButton.visibility = View.GONE
         mManualQRIdView.manualProgressBar.visibility = View.GONE
-        scanQRButton.visibility = View.VISIBLE
+        if (shouldShowScanQR) {
+            scanQRButton.visibility = View.VISIBLE
+        } else {
+            scanQRButton.visibility = View.INVISIBLE
+        }
     }
 
     private fun setScannerInFrame(){
@@ -125,12 +131,24 @@ class QRScannerActivity: AppCompatActivity(), ZXingScannerView.ResultHandler {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == MY_CAMERA_PERMISSION_CODE) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "camera permission granted", Toast.LENGTH_LONG).show()
-                addScannerViewInFrame()
-            } else {
-                Toast.makeText(this, "camera permission denied", Toast.LENGTH_LONG).show()
+            for (permission in permissions) {
+                if(ActivityCompat.shouldShowRequestPermissionRationale(this, permission.toString())){
+                    Log.d("Permission", "Denied")
+                    setManualEditIdScreenInFrame(false)
+                    Snackbar.make(scanQRButton,
+                        "QR scanning cannot work since camera permission has been denied",
+                        Snackbar.LENGTH_LONG).show()
+
+                } else {
+                    if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                        addScannerViewInFrame()
+                    } else {
+                        setManualEditIdScreenInFrame(false)
+                    }
+                }
             }
+
+
         }
     }
 

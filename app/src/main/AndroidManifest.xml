@@ -20,7 +20,6 @@
         <activity android:name=".transactions.EntryTransactionActivity" android:screenOrientation="portrait">
         </activity>
         <activity android:name=".transactions.FormActivity" android:screenOrientation="portrait">
-
         </activity>
         <activity android:name=".auth.SignInActivity" android:screenOrientation="portrait">
             <intent-filter>
