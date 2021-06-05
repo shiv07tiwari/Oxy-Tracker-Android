@@ -146,7 +146,7 @@ class FirebaseDBHelper {
                 callback.openEntryTransactionScreen(cylinderId)
             }
         }.addOnFailureListener {
-            callback.onError()
+            callback.onError(it.message.toString())
         }
     }
 

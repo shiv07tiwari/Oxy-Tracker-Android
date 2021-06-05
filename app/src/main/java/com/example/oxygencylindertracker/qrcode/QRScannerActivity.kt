@@ -43,7 +43,7 @@ class QRScannerActivity: AppCompatActivity(), ZXingScannerView.ResultHandler {
     interface QRScannerCallback {
         fun openExitTransactionScreen (cylinderId : String)
         fun openEntryTransactionScreen (cylinderId : String)
-        fun onError()
+        fun onError(error : String)
     }
 
     override fun onCreate(state: Bundle?) {
@@ -190,10 +190,10 @@ class QRScannerActivity: AppCompatActivity(), ZXingScannerView.ResultHandler {
                 finish()
             }
 
-            override fun onError() {
+            override fun onError(error : String) {
                 mManualQRIdView.manualProgressBar.visibility = View.GONE
                 mManualQRIdView.enter_qr_id_button.visibility = View.VISIBLE
-                context.showMessage("Unexpected Error. Please try again")
+                context.showMessage(error)
                 context.resumeScanner()
             }
 
