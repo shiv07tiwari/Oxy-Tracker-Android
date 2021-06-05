@@ -166,7 +166,7 @@ class QRGeneratorActivity : AppCompatActivity(), ReselectableSpinner.OnSpinnerCa
     }
 
     private fun generateQRCode(){
-        val sdf = SimpleDateFormat("ddMM-hhmmssSS")
+        val sdf = SimpleDateFormat("ddMM-HHmmssSS")
         val currDate = Date()
         val currentDate = sdf.format(currDate).toString()
         val cylType = optionEditText.text.toString()
