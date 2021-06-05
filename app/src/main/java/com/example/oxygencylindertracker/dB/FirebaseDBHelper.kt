@@ -1,8 +1,6 @@
 package com.example.oxygencylindertracker.dB
 
-import android.content.Intent
 import android.graphics.Bitmap
-import android.net.Uri
 import android.util.Log
 import com.example.oxygencylindertracker.auth.SignInActivity
 import com.example.oxygencylindertracker.home.HomeActivity
@@ -12,7 +10,6 @@ import com.example.oxygencylindertracker.transactions.EntryTransactionActivity
 import com.example.oxygencylindertracker.transactions.FormActivity
 import com.example.oxygencylindertracker.utils.Citizen
 import com.example.oxygencylindertracker.utils.Cylinder
-import com.google.android.gms.tasks.Task
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FieldValue
@@ -53,10 +50,10 @@ class FirebaseDBHelper {
     private val FIRESTORE_BASE_URL = "https://firebasestorage.googleapis.com"
 
     fun validateUserLogin(activity: SignInActivity) {
-        val userPhoneNumber = Firebase.auth.currentUser?.phoneNumber?.removePrefix("+91") ?: ""
+        val userEmail = Firebase.auth.currentUser?.email
 
-        Log.e("Validating Phone Number", " :  $userPhoneNumber")
-        db.collection(usersDB).document(userPhoneNumber).get()
+        Log.e("Validating Phone Email", " :  $userEmail")
+        db.collection(usersDB).document(userEmail?:"").get()
             .addOnSuccessListener { snapshot ->
                 val data = snapshot.data
                 Log.e("User Validation DOCS", snapshot.exists().toString())
@@ -80,9 +77,9 @@ class FirebaseDBHelper {
     }
 
     fun getCylindersDataForUser(activity: HomeActivity) {
-        val userPhoneNumber = Firebase.auth.currentUser?.phoneNumber?.removePrefix("+91") ?: ""
+        val userEmail = Firebase.auth.currentUser?.email
 
-        db.collection(cylindersDB).whereEqualTo(currentOwnerKey, userPhoneNumber)
+        db.collection(cylindersDB).whereEqualTo(currentOwnerKey, userEmail)
             .addSnapshotListener { documents, error ->
                 if (error != null) {
                     Log.e("TAG", "Error getting documents: ", error)
@@ -120,10 +117,10 @@ class FirebaseDBHelper {
     }
 
     fun checkIfExitTransaction(callback: QRScannerActivity.QRScannerCallback, cylinderId: String) {
-        val userPhoneNumber = Firebase.auth.currentUser?.phoneNumber?.removePrefix("+91") ?: ""
+        val userEmail = Firebase.auth.currentUser?.email?:""
 
         db.runTransaction { transaction ->
-            val userDocument = db.collection(usersDB).document(userPhoneNumber)
+            val userDocument = db.collection(usersDB).document(userEmail)
             val userSnapshot = transaction.get(userDocument)
             val canExit = userSnapshot.getBoolean(canExitKey) ?: false
 
@@ -131,8 +128,8 @@ class FirebaseDBHelper {
             val cylinderSnapshot = transaction.get(cylinderDocument)
 
             if (cylinderSnapshot.exists()) {
-                val ownerPhoneNumber = cylinderSnapshot.getString(currentOwnerKey)
-                val isExitCase = (ownerPhoneNumber == userPhoneNumber)
+                val ownerEmail = cylinderSnapshot.getString(currentOwnerKey)
+                val isExitCase = (ownerEmail == userEmail)
                 if (isExitCase) {
                     if (!canExit) {
                         throw Exception("Unauthorized to perform Exit Transaction. Please contact Admins")
@@ -154,7 +151,7 @@ class FirebaseDBHelper {
     }
 
     fun performEntryTransaction(cylinderId: String, activity: EntryTransactionActivity) {
-        val userPhoneNumber = Firebase.auth.currentUser?.phoneNumber?.removePrefix("+91") ?: ""
+        val userEmail = Firebase.auth.currentUser?.email?:""
         db.runTransaction { transaction ->
             val cylinderDocument = db.collection(cylindersDB).document(cylinderId)
             val cylinderSnapshot = transaction.get(cylinderDocument)
@@ -169,7 +166,7 @@ class FirebaseDBHelper {
             val currentOwnerDocument = db.collection(usersDB).document(currentOwnerId)
             val currentOwnerSnapshot = transaction.get(currentOwnerDocument)
 
-            val newOwnerDocument = db.collection(usersDB).document(userPhoneNumber)
+            val newOwnerDocument = db.collection(usersDB).document(userEmail)
 
             val historyDocument = db.collection(historyDB).document(cylinderId)
             val historySnapshot = transaction.get(historyDocument)
@@ -219,7 +216,7 @@ class FirebaseDBHelper {
             }
 
             transaction.update(newOwnerDocument, cylindersKey, FieldValue.arrayUnion(cylinderId))
-            transaction.update(cylinderDocument, currentOwnerKey, userPhoneNumber)
+            transaction.update(cylinderDocument, currentOwnerKey, userEmail)
             transaction.update(cylinderDocument, isCitizenKey, false)
             transaction.update(cylinderDocument, timestampKey, getCurrentTimeStamp())
 
@@ -382,7 +379,7 @@ class FirebaseDBHelper {
     ) {
         val cylinder = HashMap<String, Any>()
         cylinder["timestamp"] = timestamp
-        val currOwner = Firebase.auth.currentUser?.phoneNumber?.removePrefix("+91") ?: return
+        val currOwner = Firebase.auth.currentUser?.email ?: return
         cylinder["current_owner"] = currOwner
         cylinder["createdBy"] = currOwner
         cylinder["isCitizen"] = false
@@ -432,7 +429,7 @@ class FirebaseDBHelper {
     }
 
     fun checkIfCanGenerateQR(activity: QRGeneratorActivity) {
-        val userPhoneNumber = Firebase.auth.currentUser?.phoneNumber?.removePrefix("+91") ?: ""
+        val userPhoneNumber = Firebase.auth.currentUser?.email ?: ""
 
         var canGenerateQR = false
         db.runTransaction { transaction ->

@@ -28,7 +28,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".home.HomeActivity" />
+        <activity android:name=".home.HomeActivity"  android:screenOrientation="portrait"/>
 
         <meta-data
             android:name="preloaded_fonts"

@@ -14,13 +14,14 @@ import com.example.oxygencylindertracker.R
 import com.example.oxygencylindertracker.dB.FirebaseDBHelper
 import com.example.oxygencylindertracker.dB.LocalStorageHelper
 import com.example.oxygencylindertracker.home.HomeActivity
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.FirebaseException
 import com.google.firebase.FirebaseTooManyRequestsException
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
-import com.google.firebase.auth.PhoneAuthCredential
-import com.google.firebase.auth.PhoneAuthOptions
-import com.google.firebase.auth.PhoneAuthProvider
+import com.google.firebase.auth.*
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import java.util.concurrent.TimeUnit
@@ -32,59 +33,10 @@ class SignInActivity : AppCompatActivity() {
     lateinit var firebaseDBHelper : FirebaseDBHelper
     lateinit var localStorageHelper: LocalStorageHelper
     lateinit var mProgressBar : ProgressBar
-    lateinit var getOTPButton : Button
     lateinit var logInButton : Button
-    lateinit var phoneNumberEditText : EditText
-    lateinit var OTPEditText : EditText
     lateinit var titleText : TextView
-    lateinit var subText : TextView
-    private var isLoginInitiated = false
-
-    private val callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks () {
-        override fun onVerificationCompleted(p0: PhoneAuthCredential) {
-            Log.i("AUTH_MESSAGE", "Verification Completed")
-            signInWithPhoneAuthCredentials(p0)
-        }
-
-        override fun onVerificationFailed(e: FirebaseException) {
-            Log.e("AUTH_MESSAGE", "onVerificationFailed"+ e.message.toString())
-
-            when (e) {
-                is FirebaseAuthInvalidCredentialsException -> { }
-                is FirebaseTooManyRequestsException -> { }
-                else -> { }
-            }
-            showMessage("Login Failed. Please Try Again")
-        }
-
-        override fun onCodeAutoRetrievalTimeOut(p0: String) {
-            super.onCodeAutoRetrievalTimeOut(p0)
-            Log.e("Timeout", "Auto Retrieval Time Out")
-        }
-
-        override fun onCodeSent(p0: String, p1: PhoneAuthProvider.ForceResendingToken) {
-            super.onCodeSent(p0, p1)
-            titleText.text = "Auto Retrieving OTP...."
-            subText.text = "Or you could enter it manually and press login"
-            mProgressBar.visibility = View.GONE
-            logInButton.visibility = View.VISIBLE
-            OTPEditText.visibility = View.VISIBLE
-            phoneNumberEditText.visibility = View.GONE
-            getOTPButton.visibility = View.GONE
-            authPhoneTextLayout.visibility = View.GONE
-            otpTextLayout.visibility = View.VISIBLE
-
-            logInButton.setOnClickListener {
-                val otp = OTPEditText.text.toString()
-                if (otp.length != 6) {
-                    Toast.makeText(baseContext, "Invalid OTP", Toast.LENGTH_SHORT).show()
-                } else {
-                    val credential = PhoneAuthProvider.getCredential(p0, otp)
-                    signInWithPhoneAuthCredentials(credential)
-                }
-            }
-        }
-    }
+    private val RC_SIGN_IN = 420
+    lateinit var googleSignInClient : GoogleSignInClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.e("AUTH CHECK", auth.currentUser.toString())
@@ -97,86 +49,74 @@ class SignInActivity : AppCompatActivity() {
         firebaseDBHelper = FirebaseDBHelper()
         localStorageHelper = LocalStorageHelper()
 
-        phoneNumberEditText = findViewById(R.id.authPhoneNumberText)
 
-        OTPEditText = findViewById(R.id.authOTPText)
-
-        getOTPButton = findViewById(R.id.authGetOTPButton)
-        logInButton = findViewById(R.id.authLoginButton)
-        subText = findViewById(R.id.subtext)
+        logInButton = findViewById(R.id.signInButton)
         titleText = findViewById(R.id.headtext)
 
         mProgressBar = findViewById(R.id.signInProgressBar)
         mProgressBar.visibility = View.GONE
-        logInButton.visibility = View.GONE
-        OTPEditText.visibility = View.GONE
-        otpTextLayout.visibility = View.GONE
 
-        getOTPButton.setOnClickListener {
-            if (!android.util.Patterns.PHONE.matcher(phoneNumberEditText.text.toString()).matches()) {
-                Toast.makeText(this, "Invalid Phone Number", Toast.LENGTH_SHORT).show()
-            } else {
-                authenticateUser(phoneNumberEditText.text.toString())
+
+        logInButton.setOnClickListener {
+            logInButton.visibility = View.GONE
+            mProgressBar.visibility = View.VISIBLE
+            val activity = this
+            val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build()
+
+            googleSignInClient = GoogleSignIn.getClient(activity, gso)
+            googleSignInClient.signOut()
+            val signInIntent = googleSignInClient.signInIntent
+            startActivityForResult(signInIntent, RC_SIGN_IN)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == RC_SIGN_IN) {
+            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+            try {
+                val account = task.getResult(ApiException::class.java)!!
+                Log.d("TAG", "firebaseAuthWithGoogle:" + account.id)
+                firebaseAuthWithGoogle(account.idToken!!)
+            } catch (e: ApiException) {
+                Log.w("TAG", "Google sign in failed", e)
             }
         }
     }
 
-    private fun authenticateUser (phoneNumber : String) {
-        mProgressBar.visibility = View.VISIBLE
-        getOTPButton.visibility = View.GONE
-
-        Log.e("PHONE NUMBER", phoneNumber)
-        val options = PhoneAuthOptions.newBuilder(auth)
-            .setPhoneNumber("+91$phoneNumber")
-            .setTimeout(30L, TimeUnit.SECONDS)
-            .setActivity(this)
-            .setCallbacks(callbacks)
-            .build()
-        PhoneAuthProvider.verifyPhoneNumber(options)
+    private fun firebaseAuthWithGoogle(idToken: String) {
+        val credential = GoogleAuthProvider.getCredential(idToken, null)
+        auth.signInWithCredential(credential)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    Log.d("TAG", "signInWithCredential:success")
+                    val user = auth.currentUser
+                    firebaseDBHelper.validateUserLogin(this)
+                } else {
+                    Log.w("TAG", "signInWithCredential:failure", task.exception)
+                    showMessage("Login Error. Please try again")
+                }
+            }
     }
 
     fun showMessage(message : String) {
         // Used to reflect any login error. Need to reset the screen system
-        authPhoneTextLayout.visibility = View.VISIBLE
         mProgressBar.visibility = View.GONE
-        getOTPButton.visibility = View.VISIBLE
-        phoneNumberEditText.visibility = View.VISIBLE
-        logInButton.visibility = View.GONE
-        OTPEditText.visibility = View.GONE
-        otpTextLayout.visibility = View.GONE
-        titleText.text = ""
-        subText.text = "Enter phone number for OTP verification"
+        logInButton.visibility = View.VISIBLE
+        titleText.text = "Please use your authorized Email to Login"
 
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
-    fun navigateToHomeScreen(phoneNumber: String, userName : String) {
+    fun navigateToHomeScreen(email: String, userName : String) {
         val intent = Intent(this, HomeActivity::class.java)
-        localStorageHelper.savePhoneNumber(phoneNumber, this)
+        localStorageHelper.savePhoneNumber(email, this)
         localStorageHelper.saveUserName(userName, this)
         startActivity(intent)
         finish()
-    }
-
-    fun signInWithPhoneAuthCredentials(phoneAuthCredentials : PhoneAuthCredential) {
-        if (isLoginInitiated)
-            return
-        isLoginInitiated = true
-        mProgressBar.visibility = View.VISIBLE
-        logInButton.visibility = View.GONE
-        getOTPButton.visibility = View.GONE
-
-        auth.signInWithCredential(phoneAuthCredentials)
-            .addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
-                    val user = task.result?.user
-                    Log.e("UPDATE UI", "Firebase Auth Successful $user")
-                    firebaseDBHelper.validateUserLogin(this)
-                } else {
-                    if (task.exception is FirebaseAuthInvalidCredentialsException) {
-                        Snackbar.make(findViewById(android.R.id.content), "Login Failed. Please try again", Snackbar.LENGTH_SHORT).show()
-                    }
-                }
-            }
     }
 }
