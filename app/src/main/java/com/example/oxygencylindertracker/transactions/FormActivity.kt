@@ -7,12 +7,12 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
-import android.opengl.Visibility
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.ContextCompat
 import com.example.oxygencylindertracker.R
@@ -34,6 +34,7 @@ class FormActivity : AppCompatActivity() {
     private lateinit var cylinderIdTextView: TextView
     private  var imageSet: Boolean = false
     private val MY_CAMERA_PERMISSION_CODE = 101
+    private val REQUEST_ID_MULTIPLE_PERMISSIONS = 102
     private val CAMERA_REQUEST = 102
     private lateinit var firebaseDBHelper: FirebaseDBHelper
     private lateinit var imageBitmap: Bitmap
@@ -67,52 +68,30 @@ class FormActivity : AppCompatActivity() {
         cylinderIdTextView = findViewById(R.id.cylinder_id)
         cylinderIdTextView.text = "Cylinder ID: $cylinderId"
 
+
         imageConstraint.setOnClickListener {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-
-                requestPermissions(this,
-                    arrayOf(Manifest.permission.CAMERA),
-                    MY_CAMERA_PERMISSION_CODE
-                )
-
-            } else {
-                var values = ContentValues()
-                values.put(MediaStore.Images.Media.TITLE, "New Picture")
-                values.put(MediaStore.Images.Media.DESCRIPTION, "From your Camera")
-                //todo handle return later
-                imageUri = contentResolver.insert(
-                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values
-                ) ?: return@setOnClickListener
-                val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-                intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri)
-                startActivityForResult(intent, CAMERA_REQUEST)
+            if(checkAndRequestPermissions()){
+                startCameraIntent()
             }
         }
-//        imageView.setOnClickListener {
-//            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-//
-//                requestPermissions(this,
-//                    arrayOf(Manifest.permission.CAMERA),
-//                    MY_CAMERA_PERMISSION_CODE
-//                )
-//
-//            } else {
-//                var values = ContentValues()
-//                values.put(MediaStore.Images.Media.TITLE, "New Picture")
-//                values.put(MediaStore.Images.Media.DESCRIPTION, "From your Camera")
-//                //todo handle return later
-//                imageUri = contentResolver.insert(
-//                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values
-//                ) ?: return@setOnClickListener
-//                val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-//                intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri)
-//                startActivityForResult(intent, CAMERA_REQUEST)
-//            }
-//        }
+
 
         submitBtn.setOnClickListener {
             checkInputs()
         }
+    }
+
+    private fun startCameraIntent(){
+        var values = ContentValues()
+        values.put(MediaStore.Images.Media.TITLE, "New Picture")
+        values.put(MediaStore.Images.Media.DESCRIPTION, "From your Camera")
+        //todo handle return later
+        imageUri = contentResolver.insert(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values
+        ) ?: return
+        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri)
+        startActivityForResult(intent, CAMERA_REQUEST)
     }
 
     private fun checkInputs(){
@@ -128,9 +107,13 @@ class FormActivity : AppCompatActivity() {
             Toast.makeText(this, "This field cannot remain empty", Toast.LENGTH_LONG).show()
         }else if(!imageSet){
             Toast.makeText(this, "Receipt image not taken", Toast.LENGTH_LONG).show()
-        }else if(!android.util.Patterns.PHONE.matcher(contactNumber.editText?.text).matches()){
+        }else if(contactNumber.editText?.text?.length !=10 || !android.util.Patterns.PHONE.matcher(contactNumber.editText?.text).matches()){
             contactNumber.requestFocus()
-            Toast.makeText(this, "Invalid contact number", Toast.LENGTH_LONG).show()
+            if(!android.util.Patterns.PHONE.matcher(contactNumber.editText?.text).matches()){
+                Toast.makeText(this, "Invalid contact number", Toast.LENGTH_LONG).show()
+            }else{
+                Toast.makeText(this, "Number should be of 10 digits", Toast.LENGTH_LONG).show()
+            }
         } else {
             progressBar.visibility = View.VISIBLE
             submitBtn.visibility = View.GONE
@@ -177,19 +160,91 @@ class FormActivity : AppCompatActivity() {
     }
 
 
+//    override fun onRequestPermissionsResult(
+//        requestCode: Int,
+//        permissions: Array<String?>,
+//        grantResults: IntArray
+//    ) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+//        if (requestCode == MY_CAMERA_PERMISSION_CODE) {
+//            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                Toast.makeText(this, "camera permission granted", Toast.LENGTH_LONG).show()
+//                val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+//                startActivityForResult(cameraIntent, CAMERA_REQUEST)
+//            } else {
+//                Toast.makeText(this, "camera permission denied", Toast.LENGTH_LONG).show()
+//            }
+//        }
+//    }
+
+
+    private fun checkAndRequestPermissions(): Boolean {
+        val camPermission = ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.CAMERA
+        )
+        val storagePermission = ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+        )
+        val listPermissionsNeeded: MutableList<String> = ArrayList()
+        if (camPermission != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(Manifest.permission.CAMERA)
+        }
+        if (storagePermission != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        }
+        if (!listPermissionsNeeded.isEmpty()) {
+            requestPermissions(
+                this,
+                listPermissionsNeeded.toTypedArray(),
+                REQUEST_ID_MULTIPLE_PERMISSIONS
+            )
+            return false
+        }
+        return true
+    }
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
-        permissions: Array<String?>,
-        grantResults: IntArray
+        permissions: Array<String>, grantResults: IntArray
     ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == MY_CAMERA_PERMISSION_CODE) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "camera permission granted", Toast.LENGTH_LONG).show()
-                val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-                startActivityForResult(cameraIntent, CAMERA_REQUEST)
-            } else {
-                Toast.makeText(this, "camera permission denied", Toast.LENGTH_LONG).show()
+        when (requestCode) {
+            REQUEST_ID_MULTIPLE_PERMISSIONS -> {
+                val perms: MutableMap<String, Int> = HashMap()
+                perms[Manifest.permission.SEND_SMS] = PackageManager.PERMISSION_GRANTED
+                perms[Manifest.permission.ACCESS_FINE_LOCATION] = PackageManager.PERMISSION_GRANTED
+
+                if (grantResults.isNotEmpty()) {
+                    var i = 0
+                    while (i < permissions.size) {
+                        perms[permissions[i]] = grantResults[i]
+                        i++
+                    }
+
+                    if (perms[Manifest.permission.CAMERA] == PackageManager.PERMISSION_GRANTED
+                        && perms[Manifest.permission.WRITE_EXTERNAL_STORAGE] == PackageManager.PERMISSION_GRANTED
+                    ) {
+                        Toast.makeText(this, "permissions granted", Toast.LENGTH_LONG).show()
+                        startCameraIntent()
+                    } else {
+                        if (ActivityCompat.shouldShowRequestPermissionRationale(
+                                this,
+                                Manifest.permission.CAMERA
+                            ) || ActivityCompat.shouldShowRequestPermissionRationale(
+                                this,
+                                Manifest.permission.WRITE_EXTERNAL_STORAGE
+                            )
+                        ) {
+                            Toast.makeText(
+                                this,
+                                "Permissions not allowed",
+                                Toast.LENGTH_LONG
+                            )
+                                .show()
+                        }
+                    }
+                }
             }
         }
     }
@@ -209,8 +264,6 @@ class FormActivity : AppCompatActivity() {
                 imageView.layoutParams.height = convertdpToPx(240)
                 imageView.setImageBitmap(imageBitmap)
                 imageSet = true
-
-
             } catch (e: Exception) {
                 e.printStackTrace()
             }
