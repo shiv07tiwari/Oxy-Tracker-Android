@@ -9,16 +9,17 @@
 
     <TextView
         android:id="@+id/homeCylinderText"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        tools:text="Welcome Shivansh, you own 10 Cylinder(s)"
+        android:paddingEnd="10dp"
         android:textColor="@color/colorPrimary"
         android:textSize="18sp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintStart_toStartOf="@+id/appbar_image"
-        app:layout_constraintTop_toBottomOf="@+id/appbar_image" />
+        app:layout_constraintTop_toBottomOf="@+id/appbar_image"
+        tools:text="Welcome Shivansh, you own 10 Cylinder(s)" />
 
     <EditText
         android:id="@+id/editTextSearch"
